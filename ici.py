@@ -35,11 +35,11 @@ def rule_node(tag, rule, *children):
 	rule_func(tag, rule, f)
 
 def rule_op(op, fix='infix', prec=None, func=None):
-	prec = f' %prec {prec}' if prec else ''
+	prec = f'%prec {prec}' if prec else ''
 	match(fix):
-		case 'infix' : rule_func('binop', f"exp : exp {op} exp{prec}", lambda p: ('op', p[2], p[1], p[3]))
-		case 'prefix': rule_func('preop', f"exp : {op} exp{prec}", lambda p: ('op', p[1], p[2]))
-		case 'suffix': rule_func('sufop', f"exp : exp {op}{prec}", lambda p: ('op', p[2], p[1]))
+		case 'infix' : rule_func('binop', f"exp : exp {op} exp {prec}", lambda p: ('op', p[2], p[1], p[3]))
+		case 'prefix': rule_func('preop', f"exp : {op} exp {prec}", lambda p: ('op', p[1], p[2]))
+		case 'suffix': rule_func('sufop', f"exp : exp {op} {prec}", lambda p: ('op', p[2], p[1]))
 		case _: raise Exception("that ain't fixing nothing")
 
 def rule_list(name, elem, sep, trailing_seperator='disallow'):
@@ -103,8 +103,8 @@ precedence = [	#['left', 'ID', 'NUM'],
 ]
 
 # simple
-rule_node('id',   'exp : ID', 1)
-rule_node('val',  'exp : NUM', 1)
+rule_node('id', 'exp : ID', 1)
+rule_node('val','exp : NUM', 1)
 
 # operators
 for binop in ["'+'", "'-'", "'*'", 'DIV', 'POW', 'or', 'xor', 'and']:
@@ -112,25 +112,25 @@ for binop in ["'+'", "'-'", "'*'", 'DIV', 'POW', 'or', 'xor', 'and']:
 	#rule_func('asg', f'exp : ID {binop} ASG exp %prec ASG', lambda p: ('asg', p[3], p[1], ('op', p[2], ('id', p[1]), p[4])))
 for unpre in ["'+'", "'-'"]:
 	rule_func('op', f'exp : {unpre} exp', lambda p: ('op', 'u'+p[1], p[2]))
-rule_op('not', fix='prefix')
+rule_op('not',  fix='prefix')
 rule_op('imag', fix='suffix')
 
 # groups
 rule_func('grp', r"exp : '(' exp ')'", lambda p: p[2])
 
 # sequences
-rule_list('seq',  'exp', "';'", trailing_seperator='')
-rule_func('seq', r"exp : '{' seq '}'", lambda p: ('seq', *p[2]))
+rule_list('seq', 'exp', "';'", trailing_seperator='')
+rule_func('seq', "exp : '{' seq '}'", lambda p: ('seq', *p[2]))
 
 # assign, increment & decrement
-rule_node('asg',  'exp : ID ASG exp', 2, 1, 3)
-rule_node('asg',  'exp : ID USG', 2, 1)
+rule_node('asg', 'exp : ID ASG exp', 2, 1, 3)
+rule_node('asg', 'exp : ID USG', 2, 1)
 
 # comperator lists
 # only work if compare operators all have same precedence (idky)
 rule_func('cmp', f'cmp : exp CMP exp', lambda p: [[p[2]], [p[1], p[3]]])
 rule_func('cmp', f'cmp : cmp CMP exp', lambda p: [p[1][0] + [p[2]], p[1][1] + [p[3]]])
-rule_func('cmp', 'exp : cmp %prec CLS', lambda p: ('cmp', *p[1]))
+rule_func('cmp',  'exp : cmp %prec CLS', lambda p: ('cmp', *p[1]))
 
 # load and echo
 rule_op('SYS', fix='prefix')
@@ -146,7 +146,7 @@ parser = yacc(start='exp')
 
 import math, cmath
 
-int2str = lambda x: bytes.fromhex(hex(x)[2:]).decode('ascii')
+int2str = lambda x: bytes.fromhex(hex(x)[2:].zfill(2)).decode('ascii')
 ops = { '+'	: lambda x,y: x+y,
 	'-'	: lambda x,y: x-y,
 	'*'	: lambda x,y: x*y,
