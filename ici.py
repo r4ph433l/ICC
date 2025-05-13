@@ -55,23 +55,40 @@ def rule_list(name, elem, sep, trailing_seperator='disallow'):
 
 from ply.lex import lex
 
-literals = r'+-*(){};'
-reserved = {'mod': 'DIV', 'imag':'imag', 'e':'POW', 'or': 'or', 'xor': 'xor', 'and': 'and', 'not':'not', "echo": "SYS", "load": "SYS"}
-tokens = ['NUM', 'ID', 'ASG', 'USG', 'DIV', 'POW', 'CMP'] + list(reserved.values())
+literals = r'+-*(){};[],'
+reserved = {'mod': 'DIV', 'imag':'imag', 'e':'POW', 'or': 'or', 'xor': 'xor', 'and': 'and', 'not':'not',
+		'echo': 'SYS', 'load': 'SYS',
+		'wenn': 'IF', 'solange': 'WHILE', 'für': 'FOR', 'in': 'IN',
+		'¿': 'IF', '⟳' :'WHILE', '∀': 'FOR', '∈': 'IN'}
+tokens = ['NUM', 'ID', 'ASG', 'USG', 'DIV', 'POW', 'CMP'] + list(reserved.values()) + ['THEN', 'DO', 'ELSE', 'END']
 tokens = list(set(tokens))
 
+def t_DO(t):
+	r',\s*mach|:'
+	return t
+
+def t_THEN(t):
+	r'gilt|\?'
+	return t
+
+def t_ELSE(t):
+	r',\s*sonst|\!'
+	return t
+
+t_END = r'\.'
+
 def t_ID(t):
-	r'[a-zA-Z\u263a-\U0001f645_][a-zA-Z\u263a-\U0001f645_0-9]*'
-	t.type = reserved.get(t.value, 'ID')
+	r'[a-zA-Z\u00a0-\U0001f645_][a-zA-Z\u00a0-\U0001f645_0-9]*'
+	t.type = reserved.get(t.value.lower(), 'ID')
 	return t
 
 t_NUM = r'(0|[1-9][0-9]*)\.([0-9]*[1-9]|0)' + '|' + r'0b0|0b1[0|1]*|0x0|0x[1-9a-fA-F][0-9a-fA-F]*|0|[1-9][0-9]*'
 
-t_ASG = r':='
+t_ASG = r'='
 t_USG = r'(\+\+|--)((?!' + t_NUM + '|' + t_ID.__doc__ + ')|(?=imag))' # edge cases: ['1++1', '1++a', 'a++imag']
 t_DIV = r'[|\/\\]'
 t_POW = r'\*\*'
-t_CMP = r'\!?=|(<|>)?=|[<>]'
+t_CMP = r'[!=<>]=|[<>]'
 
 t_ignore_CMT = r'\#[^#]*\#'
 t_ignore = ' \t'
@@ -91,8 +108,8 @@ lexer = lex()
 
 from ply.yacc import yacc
 
-precedence = [	#['left', 'ID', 'NUM'],
-		['right', 'ASG', 'SYS'],
+precedence = [	['left', 'ID'],
+		['right', 'ASG', 'SYS', 'IF'],
 		['left', 'or'], ['left', 'xor'], ['left', 'and'],
 		['left', 'CLS'], ['left', 'CMP'],
 		['left', '+', '-'],
@@ -102,14 +119,15 @@ precedence = [	#['left', 'ID', 'NUM'],
 		['right', 'USG'],
 ]
 
-# simple
+# simples
 rule_node('id', 'exp : ID', 1)
 rule_node('val','exp : NUM', 1)
 
 # operators
 for binop in ["'+'", "'-'", "'*'", 'DIV', 'POW', 'or', 'xor', 'and']:
 	rule_op(binop)
-	#rule_func('asg', f'exp : ID {binop} ASG exp %prec ASG', lambda p: ('asg', p[3], p[1], ('op', p[2], ('id', p[1]), p[4])))
+	rule_func('op', f'exp : ID {binop} exp', lambda p: ('op', p[2], ('id', p[1]), p[3]))
+	rule_func('asg', f'exp : ID {binop} ASG exp', lambda p: ('asg', p[3], p[1], ('op', p[2], ('id', p[1]), p[4])))
 for unpre in ["'+'", "'-'"]:
 	rule_func('op', f'exp : {unpre} exp', lambda p: ('op', 'u'+p[1], p[2]))
 rule_op('not',  fix='prefix')
@@ -128,9 +146,26 @@ rule_node('asg', 'exp : ID USG', 2, 1)
 
 # comperator lists
 # only work if compare operators all have same precedence (idky)
-rule_func('cmp', f'cmp : exp CMP exp', lambda p: [[p[2]], [p[1], p[3]]])
-rule_func('cmp', f'cmp : cmp CMP exp', lambda p: [p[1][0] + [p[2]], p[1][1] + [p[3]]])
-rule_func('cmp',  'exp : cmp %prec CLS', lambda p: ('cmp', *p[1]))
+rule_func('cmp', 'cmp : exp CMP exp', lambda p: [[p[2]], [p[1], p[3]]])
+rule_func('cmp', 'cmp : cmp CMP exp', lambda p: [p[1][0] + [p[2]], p[1][1] + [p[3]]])
+rule_func('cmp', 'exp : cmp %prec CLS', lambda p: ('cmp', *p[1]))
+
+# control structures
+rule_func('ctl', 'ifc : IF exp THEN exp', lambda p: ('if', p[2], p[4], None))
+rule_func('ctl', 'ifc : IF exp THEN exp ELSE exp', lambda p: ('if', p[2], p[4], p[6]))
+rule_func('ctl', 'ifc : IF exp THEN exp ELSE ifc %prec IF', lambda p: ('if', p[2], p[4], p[6]))
+rule_func('ctl', 'exp : ifc END', lambda p: p[1])
+
+# iterator
+rule_func('it', "it : '[' exp ',' exp ']'", lambda p: ('it', p[2], p[4], 1))
+rule_func('it', "it : ']' exp ',' exp ']'", lambda p: ('it', p[2], p[4], 2))
+rule_func('it', "it : '[' exp ',' exp '['", lambda p: ('it', p[2], p[4], 3))
+rule_func('it', "it : ']' exp ',' exp '['", lambda p: ('it', p[2], p[4], 4))
+rule_func('it', 'exp : it', lambda p: p[1])
+
+# loops
+rule_func('for', 'exp : FOR ID IN it DO exp END', lambda p: ('for', p[2], p[4], p[6]))
+rule_func('while', 'exp : WHILE exp DO exp END', lambda p: ('while', p[2], p[4]))
 
 # load and echo
 rule_op('SYS', fix='prefix')
@@ -143,6 +178,8 @@ parser = yacc(start='exp')
 #   *-----------...-*
 #   |  INTERPRETER  |
 #   *---------------*
+
+NONE=float('NaN')
 
 import math, cmath
 
@@ -168,7 +205,7 @@ ops = { '+'	: lambda x,y: x+y,
 
 cmp = { '<'	: lambda x,y: x <  y,
 	'<='	: lambda x,y: x <= y,
-	'='	: lambda x,y: x == y,
+	'=='	: lambda x,y: x == y,
 	'!='	: lambda x,y: x != y,
 	'>='	: lambda x,y: x >= y,
 	'>'	: lambda x,y: x >  y,}
@@ -185,7 +222,7 @@ def eval(exp, env):
 			return pyeval(x) # zieh, zieh, zieh
 		case ('asg', op, x, *exp):
 			if x not in env: env[x] = 0
-			if op == ':=': env[x] = eval(*exp, env)
+			if op == '=':  env[x] = eval(*exp, env)
 			if op == '++': env[x]  += 1
 			if op == '--': env[x]  -= 1
 			return env[x]
@@ -196,14 +233,64 @@ def eval(exp, env):
 			for e in exp:
 				eval(e, env)
 			return eval(ret, env)
+		case ('if', con, exp, alt):
+			if eval(con, env): return eval(exp, env)
+			return eval(alt, env) if alt else NONE
+		case ('it', lo, up, t):
+			return Iterator(eval(lo, env), eval(up, env), t)
+		case ('for', i, it, exp):
+			it = eval(it, env)
+			ret = NONE
+			while not it.empty():
+				env[i] = it.next()
+				ret = eval(exp, env)
+			return ret
+		case ('while', cond, exp):
+			ret = NONE
+			while eval(cond, env):
+				ret = eval(exp, env)
+			return ret
 		case _: raise Exception(f'exception in {exp}')
+
+class Iterator():
+	def __init__(self, lo, up, t, step=1):
+		self.lo = lo
+		self.up = up
+		self.t  = t
+		self.step = step
+
+	def __repr__(self):
+		match(self.t):
+			case 1: return f'[{self.lo},{self.up}]'
+			case 2: return f']{self.lo},{self.up}]'
+			case 3: return f'[{self.lo},{self.up}['
+			case 4: return f']{self.lo},{self.up}['
+
+	def contains(self, x):
+		match(self.t):
+			case 1: return self.lo <  x <  self.up
+			case 2: return self.lo <= x <  self.up
+			case 3: return self.lo <  x <= self.up
+			case 4: return self.lo <= x <= self.up
+
+	def empty(self):
+		if self.t < 3:
+			return self.lo + self.step >= self.up
+		else:   return self.lo + self.step > self.up
+
+	def next(self):
+		if self.empty(): return NONE
+		self.lo += self.step
+		if self.t % 2 == 1:
+			return self.lo
+		else:   return self.lo - self.step
 
 #   *----...-*
 #   |  MAIN  |
 #   *--------*
 
 if __name__ == '__main__':
-	import argparse, sys
+	import os, readline, argparse, sys
 
 	argp = argparse.ArgumentParser(prog=sys.argv[0], description='ICC25 Interpreter\nInterpretation und Compilation von Computerprogrammen 2025\nHochschule Bonn-Rhein-Sieg',
 	epilog='󱤹 Raphael Schönefeld', formatter_class=argparse.RawTextHelpFormatter)
@@ -219,6 +306,19 @@ if __name__ == '__main__':
 			print(res)
 			sys.exit(0)
 
+	hist = os.path.join(os.path.expanduser("~"), ".icc_history")
+	try:
+		readline.read_history_file(hist)
+		readline.set_history_length(1000)
+	except FileNotFoundError:
+		pass
+
+	def exit():
+		print()
+		if not os.path.exists(hist): os.mknod(hist)
+		readline.write_history_file(hist)
+		sys.exit(0)
+
 	env = {}
 	while True:
 		try:
@@ -228,5 +328,6 @@ if __name__ == '__main__':
 			result = parser.parse(src)
 			if verbose: print(result)
 			if result: print(eval(result, env))
-		except EOFError: print('\n[CTRL][d] - exit'); break
-		except Exception as e: print('\x1b[0;31m' + repr(e) + '\x1b[0m')  
+		except EOFError: exit()
+		except Exception as e: print('\x1b[0;31m' + repr(e) + '\x1b[0m')
+		except KeyboardInterrupt as e: print('\n\x1b[0;31m' + 'KeyboardInterrupt' + '\x1b[0m')
