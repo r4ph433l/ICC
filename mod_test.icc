@@ -1,0 +1,28 @@
+#
+	*-------------------------...-*
+	| Programm to add 2 Numbers   |
+	| how to load the program?    |
+	| >>> load 0x746573742e696363 |
+	*-----------------------------*
+#
+{
+	# stdin := '/dev/stdin' #
+	stdin = 0x2f6465762f737464696e;
+	
+	# echo  'f = a mod b' #
+	echo 0x66203d2061206d6f642062;
+	
+	# echo 'a: ' #
+	echo 0x613a20;
+	a = load stdin;
+	
+	# echo 'b: ' #
+	echo 0x623a20;
+	b = load stdin;
+	a mod b
+
+	# Convert String to Hex
+	  python -c 'print("test.icc".encode().hex())'
+	  Convert Hex 
+	#
+}
