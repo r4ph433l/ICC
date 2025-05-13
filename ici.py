@@ -49,6 +49,12 @@ def rule_list(name, elem, sep, trailing_seperator='disallow'):
 	if trailing_seperator != 'force':
 		rule_func(name, f"{name} : {elem}", lambda p: [p[1]])
 
+def _t(name, reg):
+	def f(p):
+		return p
+	f.__doc__ = reg
+	setattr(module, f't_{name}', f)
+
 #   *-----...-*
 #   |  LEXER  |
 #   *---------*
@@ -57,33 +63,22 @@ from ply.lex import lex
 
 literals = r'+-*(){};[],'
 reserved = {'mod': 'DIV', 'imag':'imag', 'e':'POW', 'or': 'or', 'xor': 'xor', 'and': 'and', 'not':'not',
-		'echo': 'SYS', 'load': 'SYS',
-		'solange': 'WHILE', 'für': 'FOR', 'in': 'IN',
-		'⟳' :'WHILE', '∀': 'FOR', '∈': 'IN'}
-tokens = ['NUM', 'STR', 'ID', 'ASG', 'USG', 'DIV', 'POW', 'CMP'] + list(reserved.values()) + ['IF', 'THEN', 'DO', 'ELSE', 'END']
+		'echo': 'SYS', 'load': 'SYS'}
+tokens = ['NUM', 'STR', 'ID', 'ASG', 'USG', 'DIV', 'POW', 'CMP'] + ['IF', 'THEN', 'DO', 'ELSE', 'WHILE', 'FOR', 'IN', 'END'] + list(reserved.values()) 
 tokens = list(set(tokens))
 
-def t_IF(t):
-	r'wenn|¿'
-	return t
-
-def t_DO(t):
-	r',\s*mach|:'
-	return t
-
-def t_THEN(t):
-	r'gilt|\?'
-	return t
-
-def t_ELSE(t):
-	r',\s*sonst|\!'
-	return t
-
-t_END = r'\.'
+_t('IF',	r'[wW]enn|¿')
+_t('IN',	r'in|∈')
+_t('FOR',	r'[fF]ür|∀')
+_t('WHILE',	r'[sS]olange|⟳')
+_t('DO',	r',\s*mach|:')
+_t('THEN',	r'gilt|\?')
+_t('ELSE',	r',\s*sonst|\!')
+t_END =		r'\.'
 
 def t_ID(t):
 	r'[a-zA-Z\u00a0-\U0001f645_][a-zA-Z\u00a0-\U0001f645_0-9]*'
-	t.type = reserved.get(t.value.lower(), 'ID')
+	t.type = reserved.get(t.value, 'ID')
 	return t
 
 t_NUM = r'(0|[1-9][0-9]*)\.([0-9]*[1-9]|0)' + '|' + r'0b0|0b1[0|1]*|0x0|0x[1-9a-fA-F][0-9a-fA-F]*|0|[1-9][0-9]*'
@@ -169,6 +164,7 @@ rule_func('it', "it : ']' exp ',' exp ']'", lambda p: ('it', p[2], p[4], 2))
 rule_func('it', "it : '[' exp ',' exp '['", lambda p: ('it', p[2], p[4], 3))
 rule_func('it', "it : ']' exp ',' exp '['", lambda p: ('it', p[2], p[4], 4))
 rule_func('it', 'exp : it', lambda p: p[1])
+rule_func('it', 'exp : exp IN it', lambda p: ('in', p[1], p[3]))
 
 # loops
 rule_func('for', 'exp : FOR ID IN it DO exp END', lambda p: ('for', p[2], p[4], p[6]))
@@ -252,6 +248,8 @@ def eval(exp, env):
 			return eval(alt, env) if alt else NONE
 		case ('it', lo, up, t):
 			return Iterator(eval(lo, env), eval(up, env), t)
+		case ('in', exp, it):
+			return int(eval(exp, env) in eval(it, env))
 		case ('for', i, it, exp):
 			it = eval(it, env)
 			ret = NONE
@@ -280,7 +278,7 @@ class Iterator():
 			case 3: return f'[{self.lo},{self.up}['
 			case 4: return f']{self.lo},{self.up}['
 
-	def contains(self, x):
+	def __contains__(self, x):
 		match(self.t):
 			case 1: return self.lo <  x <  self.up
 			case 2: return self.lo <= x <  self.up
