@@ -1,19 +1,15 @@
 #	
-	*-----------------------------------...-*
-	| Factorial - iterative                 |
-	| F(n) = n!                             |
-	| >>> load 0x666163746f7269616c2e696363 |
-	*---------------------------------------*
+	*-------------------...-*
+	| Factorial - iterative |
+	| F(n) = n!             |
+	*-----------------------*
 #	
 {
 	stdin = "/dev/stdin"; 
-	echo "fact(n) - input 'n'"; 
-	load stdin;
+	echo "F(n) - input 'n'"; 
+	n = load stdin;
 	¿n>=0? {
 		fact = 1;
 		∀ i ∈ ]2,n+1[: fact *= i.
-	}.;
-	i = 0;
-	⟳ i<fact: echo i++.;
-	fact
+	}.
 }

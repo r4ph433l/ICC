@@ -94,8 +94,10 @@ t_DIV = r'[|\/\\]'
 t_POW = r'\*\*'
 t_CMP = r'[!=<>]=|[<>]'
 
-t_ignore_CMT = r'\#[^#]*\#'
 t_ignore = ' \t'
+def t_comment(t):
+	r'\#[^#]*\#'
+	t.lexer.lineno += t.value.count(r'\n')
 
 def t_newline(t):
 	r'\n+'
@@ -311,10 +313,11 @@ if __name__ == '__main__':
 	args = argp.parse_args()
 
 	verbose = args.verbose
+	env = {}
 	if args.input:
 		with open(args.input, 'r') as file:
 			src = file.read()[:-1]
-			res = eval(parser.parse(src), {})
+			res = eval(parser.parse(src), env)
 			print(res)
 			sys.exit(0)
 
@@ -331,7 +334,6 @@ if __name__ == '__main__':
 		readline.write_history_file(hist)
 		sys.exit(0)
 
-	env = {}
 	while True:
 		try:
 			src = input('\x1b[0;32m' + '>>> ' + '\x1b[0m')
