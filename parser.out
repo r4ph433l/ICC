@@ -52,9 +52,10 @@ Rule 46    seq -> exp ; seq
 Rule 47    seq -> exp ;
 Rule 48    seq -> exp
 Rule 49    exp -> { seq }
-Rule 50    exp -> exp imag
-Rule 51    exp -> NUM
-Rule 52    exp -> WHILE exp DO exp END
+Rule 50    exp -> STR
+Rule 51    exp -> exp imag
+Rule 52    exp -> NUM
+Rule 53    exp -> WHILE exp DO exp END
 
 Terminals, with rules where they appear
 
@@ -68,24 +69,25 @@ Terminals, with rules where they appear
 ASG                  : 1 2 3 4 5 6 7 8 9
 CMP                  : 19 20
 DIV                  : 4 14 37
-DO                   : 26 52
+DO                   : 26 53
 ELSE                 : 23 24
-END                  : 25 26 52
+END                  : 25 26 53
 FOR                  : 26
 ID                   : 1 2 3 4 5 6 7 8 9 10 26 28 34 35 36 37 38 39 40 41
 IF                   : 22 23 24
 IN                   : 26
-NUM                  : 51
+NUM                  : 52
 POW                  : 5 15 38
+STR                  : 50
 SYS                  : 45
 THEN                 : 22 23 24
 USG                  : 10
-WHILE                : 52
+WHILE                : 53
 [                    : 29 31 31 32
 ]                    : 29 30 30 32
 and                  : 8 18 41
 error                : 
-imag                 : 50
+imag                 : 51
 not                  : 44
 or                   : 6 16 39
 xor                  : 7 17 40
@@ -95,7 +97,7 @@ xor                  : 7 17 40
 Nonterminals, with rules where they appear
 
 cmp                  : 20 21
-exp                  : 1 2 3 4 5 6 7 8 9 11 11 12 12 13 13 14 14 15 15 16 16 17 17 18 18 19 19 20 22 22 23 23 23 24 24 26 27 29 29 30 30 31 31 32 32 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 50 52 52 0
+exp                  : 1 2 3 4 5 6 7 8 9 11 11 12 12 13 13 14 14 15 15 16 16 17 17 18 18 19 19 20 22 22 23 23 23 24 24 26 27 29 29 30 30 31 31 32 32 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 51 53 53 0
 ifc                  : 24 25
 it                   : 26 33
 seq                  : 46 49
@@ -142,9 +144,10 @@ state 0
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -163,11 +166,12 @@ state 0
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
     exp                            shift and go to state 1
     cmp                            shift and go to state 5
@@ -185,19 +189,19 @@ state 1
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    or              shift and go to state 23
-    xor             shift and go to state 24
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    or              shift and go to state 24
+    xor             shift and go to state 25
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
 
 state 2
@@ -222,16 +226,16 @@ state 2
     (40) exp -> ID . xor exp
     (41) exp -> ID . and exp
 
-    +               shift and go to state 28
-    -               shift and go to state 30
-    *               shift and go to state 31
-    DIV             shift and go to state 32
-    POW             shift and go to state 33
-    or              shift and go to state 34
-    xor             shift and go to state 35
-    and             shift and go to state 36
-    ASG             shift and go to state 29
-    USG             shift and go to state 37
+    +               shift and go to state 29
+    -               shift and go to state 31
+    *               shift and go to state 32
+    DIV             shift and go to state 33
+    POW             shift and go to state 34
+    or              shift and go to state 35
+    xor             shift and go to state 36
+    and             shift and go to state 37
+    ASG             shift and go to state 30
+    USG             shift and go to state 38
     imag            reduce using rule 28 (exp -> ID .)
     CMP             reduce using rule 28 (exp -> ID .)
     $end            reduce using rule 28 (exp -> ID .)
@@ -296,9 +300,10 @@ state 3
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -317,13 +322,14 @@ state 3
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 38
+    exp                            shift and go to state 39
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
@@ -368,9 +374,10 @@ state 4
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -389,13 +396,14 @@ state 4
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 39
+    exp                            shift and go to state 40
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
@@ -425,7 +433,7 @@ state 5
     ELSE            reduce using rule 21 (exp -> cmp .)
     ]               reduce using rule 21 (exp -> cmp .)
     [               reduce using rule 21 (exp -> cmp .)
-    CMP             shift and go to state 40
+    CMP             shift and go to state 41
 
   ! CMP             [ reduce using rule 21 (exp -> cmp .) ]
 
@@ -434,14 +442,14 @@ state 6
 
     (25) exp -> ifc . END
 
-    END             shift and go to state 41
+    END             shift and go to state 42
 
 
 state 7
 
     (26) exp -> FOR . ID IN it DO exp END
 
-    ID              shift and go to state 42
+    ID              shift and go to state 43
 
 
 state 8
@@ -511,9 +519,10 @@ state 9
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -532,13 +541,14 @@ state 9
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 43
+    exp                            shift and go to state 44
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
@@ -583,9 +593,10 @@ state 10
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -604,13 +615,14 @@ state 10
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 44
+    exp                            shift and go to state 45
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
@@ -655,9 +667,10 @@ state 11
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -676,13 +689,14 @@ state 11
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 45
+    exp                            shift and go to state 46
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
@@ -730,9 +744,10 @@ state 12
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -751,48 +766,76 @@ state 12
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    seq                            shift and go to state 46
-    exp                            shift and go to state 47
+    seq                            shift and go to state 47
+    exp                            shift and go to state 48
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
 state 13
 
-    (51) exp -> NUM .
+    (50) exp -> STR .
 
-    +               reduce using rule 51 (exp -> NUM .)
-    -               reduce using rule 51 (exp -> NUM .)
-    *               reduce using rule 51 (exp -> NUM .)
-    DIV             reduce using rule 51 (exp -> NUM .)
-    POW             reduce using rule 51 (exp -> NUM .)
-    or              reduce using rule 51 (exp -> NUM .)
-    xor             reduce using rule 51 (exp -> NUM .)
-    and             reduce using rule 51 (exp -> NUM .)
-    imag            reduce using rule 51 (exp -> NUM .)
-    CMP             reduce using rule 51 (exp -> NUM .)
-    $end            reduce using rule 51 (exp -> NUM .)
-    )               reduce using rule 51 (exp -> NUM .)
-    ;               reduce using rule 51 (exp -> NUM .)
-    }               reduce using rule 51 (exp -> NUM .)
-    DO              reduce using rule 51 (exp -> NUM .)
-    THEN            reduce using rule 51 (exp -> NUM .)
-    ,               reduce using rule 51 (exp -> NUM .)
-    END             reduce using rule 51 (exp -> NUM .)
-    ELSE            reduce using rule 51 (exp -> NUM .)
-    ]               reduce using rule 51 (exp -> NUM .)
-    [               reduce using rule 51 (exp -> NUM .)
+    +               reduce using rule 50 (exp -> STR .)
+    -               reduce using rule 50 (exp -> STR .)
+    *               reduce using rule 50 (exp -> STR .)
+    DIV             reduce using rule 50 (exp -> STR .)
+    POW             reduce using rule 50 (exp -> STR .)
+    or              reduce using rule 50 (exp -> STR .)
+    xor             reduce using rule 50 (exp -> STR .)
+    and             reduce using rule 50 (exp -> STR .)
+    imag            reduce using rule 50 (exp -> STR .)
+    CMP             reduce using rule 50 (exp -> STR .)
+    $end            reduce using rule 50 (exp -> STR .)
+    )               reduce using rule 50 (exp -> STR .)
+    ;               reduce using rule 50 (exp -> STR .)
+    }               reduce using rule 50 (exp -> STR .)
+    DO              reduce using rule 50 (exp -> STR .)
+    THEN            reduce using rule 50 (exp -> STR .)
+    ,               reduce using rule 50 (exp -> STR .)
+    END             reduce using rule 50 (exp -> STR .)
+    ELSE            reduce using rule 50 (exp -> STR .)
+    ]               reduce using rule 50 (exp -> STR .)
+    [               reduce using rule 50 (exp -> STR .)
 
 
 state 14
 
-    (52) exp -> WHILE . exp DO exp END
+    (52) exp -> NUM .
+
+    +               reduce using rule 52 (exp -> NUM .)
+    -               reduce using rule 52 (exp -> NUM .)
+    *               reduce using rule 52 (exp -> NUM .)
+    DIV             reduce using rule 52 (exp -> NUM .)
+    POW             reduce using rule 52 (exp -> NUM .)
+    or              reduce using rule 52 (exp -> NUM .)
+    xor             reduce using rule 52 (exp -> NUM .)
+    and             reduce using rule 52 (exp -> NUM .)
+    imag            reduce using rule 52 (exp -> NUM .)
+    CMP             reduce using rule 52 (exp -> NUM .)
+    $end            reduce using rule 52 (exp -> NUM .)
+    )               reduce using rule 52 (exp -> NUM .)
+    ;               reduce using rule 52 (exp -> NUM .)
+    }               reduce using rule 52 (exp -> NUM .)
+    DO              reduce using rule 52 (exp -> NUM .)
+    THEN            reduce using rule 52 (exp -> NUM .)
+    ,               reduce using rule 52 (exp -> NUM .)
+    END             reduce using rule 52 (exp -> NUM .)
+    ELSE            reduce using rule 52 (exp -> NUM .)
+    ]               reduce using rule 52 (exp -> NUM .)
+    [               reduce using rule 52 (exp -> NUM .)
+
+
+state 15
+
+    (53) exp -> WHILE . exp DO exp END
     (1) exp -> . ID + ASG exp
     (2) exp -> . ID - ASG exp
     (3) exp -> . ID * ASG exp
@@ -830,9 +873,10 @@ state 14
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -851,18 +895,19 @@ state 14
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 48
+    exp                            shift and go to state 49
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 15
+state 16
 
     (22) ifc -> IF . exp THEN exp
     (23) ifc -> IF . exp THEN exp ELSE exp
@@ -904,9 +949,10 @@ state 15
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -925,18 +971,19 @@ state 15
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 49
+    exp                            shift and go to state 50
     ifc                            shift and go to state 6
     cmp                            shift and go to state 5
     it                             shift and go to state 8
 
-state 16
+state 17
 
     (29) it -> [ . exp , exp ]
     (31) it -> [ . exp , exp [
@@ -977,9 +1024,10 @@ state 16
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -998,18 +1046,19 @@ state 16
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 50
+    exp                            shift and go to state 51
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 17
+state 18
 
     (30) it -> ] . exp , exp ]
     (32) it -> ] . exp , exp [
@@ -1050,9 +1099,10 @@ state 17
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -1071,18 +1121,19 @@ state 17
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 51
+    exp                            shift and go to state 52
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 18
+state 19
 
     (11) exp -> exp + . exp
     (1) exp -> . ID + ASG exp
@@ -1122,9 +1173,10 @@ state 18
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -1143,18 +1195,19 @@ state 18
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 52
+    exp                            shift and go to state 53
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 19
+state 20
 
     (12) exp -> exp - . exp
     (1) exp -> . ID + ASG exp
@@ -1194,9 +1247,10 @@ state 19
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -1215,18 +1269,19 @@ state 19
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 53
+    exp                            shift and go to state 54
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 20
+state 21
 
     (13) exp -> exp * . exp
     (1) exp -> . ID + ASG exp
@@ -1266,9 +1321,10 @@ state 20
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -1287,18 +1343,19 @@ state 20
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 54
+    exp                            shift and go to state 55
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 21
+state 22
 
     (14) exp -> exp DIV . exp
     (1) exp -> . ID + ASG exp
@@ -1338,9 +1395,10 @@ state 21
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -1359,18 +1417,19 @@ state 21
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 55
+    exp                            shift and go to state 56
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 22
+state 23
 
     (15) exp -> exp POW . exp
     (1) exp -> . ID + ASG exp
@@ -1410,9 +1469,10 @@ state 22
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -1431,18 +1491,19 @@ state 22
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 56
+    exp                            shift and go to state 57
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 23
+state 24
 
     (16) exp -> exp or . exp
     (1) exp -> . ID + ASG exp
@@ -1482,9 +1543,10 @@ state 23
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -1503,18 +1565,19 @@ state 23
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 57
+    exp                            shift and go to state 58
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 24
+state 25
 
     (17) exp -> exp xor . exp
     (1) exp -> . ID + ASG exp
@@ -1554,9 +1617,10 @@ state 24
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -1575,18 +1639,19 @@ state 24
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 58
+    exp                            shift and go to state 59
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 25
+state 26
 
     (18) exp -> exp and . exp
     (1) exp -> . ID + ASG exp
@@ -1626,9 +1691,10 @@ state 25
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -1647,45 +1713,46 @@ state 25
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 59
+    exp                            shift and go to state 60
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 26
-
-    (50) exp -> exp imag .
-
-    +               reduce using rule 50 (exp -> exp imag .)
-    -               reduce using rule 50 (exp -> exp imag .)
-    *               reduce using rule 50 (exp -> exp imag .)
-    DIV             reduce using rule 50 (exp -> exp imag .)
-    POW             reduce using rule 50 (exp -> exp imag .)
-    or              reduce using rule 50 (exp -> exp imag .)
-    xor             reduce using rule 50 (exp -> exp imag .)
-    and             reduce using rule 50 (exp -> exp imag .)
-    imag            reduce using rule 50 (exp -> exp imag .)
-    CMP             reduce using rule 50 (exp -> exp imag .)
-    $end            reduce using rule 50 (exp -> exp imag .)
-    )               reduce using rule 50 (exp -> exp imag .)
-    ;               reduce using rule 50 (exp -> exp imag .)
-    }               reduce using rule 50 (exp -> exp imag .)
-    DO              reduce using rule 50 (exp -> exp imag .)
-    THEN            reduce using rule 50 (exp -> exp imag .)
-    ,               reduce using rule 50 (exp -> exp imag .)
-    END             reduce using rule 50 (exp -> exp imag .)
-    ELSE            reduce using rule 50 (exp -> exp imag .)
-    ]               reduce using rule 50 (exp -> exp imag .)
-    [               reduce using rule 50 (exp -> exp imag .)
-
-
 state 27
+
+    (51) exp -> exp imag .
+
+    +               reduce using rule 51 (exp -> exp imag .)
+    -               reduce using rule 51 (exp -> exp imag .)
+    *               reduce using rule 51 (exp -> exp imag .)
+    DIV             reduce using rule 51 (exp -> exp imag .)
+    POW             reduce using rule 51 (exp -> exp imag .)
+    or              reduce using rule 51 (exp -> exp imag .)
+    xor             reduce using rule 51 (exp -> exp imag .)
+    and             reduce using rule 51 (exp -> exp imag .)
+    imag            reduce using rule 51 (exp -> exp imag .)
+    CMP             reduce using rule 51 (exp -> exp imag .)
+    $end            reduce using rule 51 (exp -> exp imag .)
+    )               reduce using rule 51 (exp -> exp imag .)
+    ;               reduce using rule 51 (exp -> exp imag .)
+    }               reduce using rule 51 (exp -> exp imag .)
+    DO              reduce using rule 51 (exp -> exp imag .)
+    THEN            reduce using rule 51 (exp -> exp imag .)
+    ,               reduce using rule 51 (exp -> exp imag .)
+    END             reduce using rule 51 (exp -> exp imag .)
+    ELSE            reduce using rule 51 (exp -> exp imag .)
+    ]               reduce using rule 51 (exp -> exp imag .)
+    [               reduce using rule 51 (exp -> exp imag .)
+
+
+state 28
 
     (19) cmp -> exp CMP . exp
     (1) exp -> . ID + ASG exp
@@ -1725,9 +1792,10 @@ state 27
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -1746,18 +1814,19 @@ state 27
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 60
+    exp                            shift and go to state 61
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 28
+state 29
 
     (1) exp -> ID + . ASG exp
     (34) exp -> ID + . exp
@@ -1798,9 +1867,10 @@ state 28
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -1811,7 +1881,7 @@ state 28
     (31) it -> . [ exp , exp [
     (32) it -> . ] exp , exp [
 
-    ASG             shift and go to state 61
+    ASG             shift and go to state 62
     ID              shift and go to state 2
     FOR             shift and go to state 7
     (               shift and go to state 9
@@ -1820,18 +1890,19 @@ state 28
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 62
+    exp                            shift and go to state 63
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 29
+state 30
 
     (9) exp -> ID ASG . exp
     (1) exp -> . ID + ASG exp
@@ -1871,9 +1942,10 @@ state 29
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -1892,18 +1964,19 @@ state 29
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 63
+    exp                            shift and go to state 64
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 30
+state 31
 
     (2) exp -> ID - . ASG exp
     (35) exp -> ID - . exp
@@ -1944,9 +2017,10 @@ state 30
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -1957,7 +2031,7 @@ state 30
     (31) it -> . [ exp , exp [
     (32) it -> . ] exp , exp [
 
-    ASG             shift and go to state 64
+    ASG             shift and go to state 65
     ID              shift and go to state 2
     FOR             shift and go to state 7
     (               shift and go to state 9
@@ -1966,18 +2040,19 @@ state 30
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 65
+    exp                            shift and go to state 66
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 31
+state 32
 
     (3) exp -> ID * . ASG exp
     (36) exp -> ID * . exp
@@ -2018,9 +2093,10 @@ state 31
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -2031,7 +2107,7 @@ state 31
     (31) it -> . [ exp , exp [
     (32) it -> . ] exp , exp [
 
-    ASG             shift and go to state 66
+    ASG             shift and go to state 67
     ID              shift and go to state 2
     FOR             shift and go to state 7
     (               shift and go to state 9
@@ -2040,18 +2116,19 @@ state 31
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 67
+    exp                            shift and go to state 68
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 32
+state 33
 
     (4) exp -> ID DIV . ASG exp
     (37) exp -> ID DIV . exp
@@ -2092,9 +2169,10 @@ state 32
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -2105,7 +2183,7 @@ state 32
     (31) it -> . [ exp , exp [
     (32) it -> . ] exp , exp [
 
-    ASG             shift and go to state 68
+    ASG             shift and go to state 69
     ID              shift and go to state 2
     FOR             shift and go to state 7
     (               shift and go to state 9
@@ -2114,18 +2192,19 @@ state 32
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 69
+    exp                            shift and go to state 70
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 33
+state 34
 
     (5) exp -> ID POW . ASG exp
     (38) exp -> ID POW . exp
@@ -2166,9 +2245,10 @@ state 33
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -2179,7 +2259,7 @@ state 33
     (31) it -> . [ exp , exp [
     (32) it -> . ] exp , exp [
 
-    ASG             shift and go to state 70
+    ASG             shift and go to state 71
     ID              shift and go to state 2
     FOR             shift and go to state 7
     (               shift and go to state 9
@@ -2188,18 +2268,19 @@ state 33
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 71
+    exp                            shift and go to state 72
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 34
+state 35
 
     (6) exp -> ID or . ASG exp
     (39) exp -> ID or . exp
@@ -2240,9 +2321,10 @@ state 34
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -2253,7 +2335,7 @@ state 34
     (31) it -> . [ exp , exp [
     (32) it -> . ] exp , exp [
 
-    ASG             shift and go to state 72
+    ASG             shift and go to state 73
     ID              shift and go to state 2
     FOR             shift and go to state 7
     (               shift and go to state 9
@@ -2262,18 +2344,19 @@ state 34
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 73
+    exp                            shift and go to state 74
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 35
+state 36
 
     (7) exp -> ID xor . ASG exp
     (40) exp -> ID xor . exp
@@ -2314,9 +2397,10 @@ state 35
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -2327,7 +2411,7 @@ state 35
     (31) it -> . [ exp , exp [
     (32) it -> . ] exp , exp [
 
-    ASG             shift and go to state 74
+    ASG             shift and go to state 75
     ID              shift and go to state 2
     FOR             shift and go to state 7
     (               shift and go to state 9
@@ -2336,18 +2420,19 @@ state 35
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 75
+    exp                            shift and go to state 76
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 36
+state 37
 
     (8) exp -> ID and . ASG exp
     (41) exp -> ID and . exp
@@ -2388,9 +2473,10 @@ state 36
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -2401,7 +2487,7 @@ state 36
     (31) it -> . [ exp , exp [
     (32) it -> . ] exp , exp [
 
-    ASG             shift and go to state 76
+    ASG             shift and go to state 77
     ID              shift and go to state 2
     FOR             shift and go to state 7
     (               shift and go to state 9
@@ -2410,18 +2496,19 @@ state 36
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 77
+    exp                            shift and go to state 78
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 37
+state 38
 
     (10) exp -> ID USG .
 
@@ -2448,7 +2535,7 @@ state 37
     [               reduce using rule 10 (exp -> ID USG .)
 
 
-state 38
+state 39
 
     (42) exp -> + exp .
     (11) exp -> exp . + exp
@@ -2459,7 +2546,7 @@ state 38
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     +               reduce using rule 42 (exp -> + exp .)
@@ -2479,24 +2566,24 @@ state 38
     ELSE            reduce using rule 42 (exp -> + exp .)
     ]               reduce using rule 42 (exp -> + exp .)
     [               reduce using rule 42 (exp -> + exp .)
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    imag            shift and go to state 26
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    imag            shift and go to state 27
 
   ! *               [ reduce using rule 42 (exp -> + exp .) ]
   ! DIV             [ reduce using rule 42 (exp -> + exp .) ]
   ! POW             [ reduce using rule 42 (exp -> + exp .) ]
   ! imag            [ reduce using rule 42 (exp -> + exp .) ]
-  ! +               [ shift and go to state 18 ]
-  ! -               [ shift and go to state 19 ]
-  ! or              [ shift and go to state 23 ]
-  ! xor             [ shift and go to state 24 ]
-  ! and             [ shift and go to state 25 ]
-  ! CMP             [ shift and go to state 27 ]
+  ! +               [ shift and go to state 19 ]
+  ! -               [ shift and go to state 20 ]
+  ! or              [ shift and go to state 24 ]
+  ! xor             [ shift and go to state 25 ]
+  ! and             [ shift and go to state 26 ]
+  ! CMP             [ shift and go to state 28 ]
 
 
-state 39
+state 40
 
     (43) exp -> - exp .
     (11) exp -> exp . + exp
@@ -2507,7 +2594,7 @@ state 39
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     +               reduce using rule 43 (exp -> - exp .)
@@ -2527,24 +2614,24 @@ state 39
     ELSE            reduce using rule 43 (exp -> - exp .)
     ]               reduce using rule 43 (exp -> - exp .)
     [               reduce using rule 43 (exp -> - exp .)
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    imag            shift and go to state 26
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    imag            shift and go to state 27
 
   ! *               [ reduce using rule 43 (exp -> - exp .) ]
   ! DIV             [ reduce using rule 43 (exp -> - exp .) ]
   ! POW             [ reduce using rule 43 (exp -> - exp .) ]
   ! imag            [ reduce using rule 43 (exp -> - exp .) ]
-  ! +               [ shift and go to state 18 ]
-  ! -               [ shift and go to state 19 ]
-  ! or              [ shift and go to state 23 ]
-  ! xor             [ shift and go to state 24 ]
-  ! and             [ shift and go to state 25 ]
-  ! CMP             [ shift and go to state 27 ]
+  ! +               [ shift and go to state 19 ]
+  ! -               [ shift and go to state 20 ]
+  ! or              [ shift and go to state 24 ]
+  ! xor             [ shift and go to state 25 ]
+  ! and             [ shift and go to state 26 ]
+  ! CMP             [ shift and go to state 28 ]
 
 
-state 40
+state 41
 
     (20) cmp -> cmp CMP . exp
     (1) exp -> . ID + ASG exp
@@ -2584,9 +2671,10 @@ state 40
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -2605,18 +2693,19 @@ state 40
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
     cmp                            shift and go to state 5
-    exp                            shift and go to state 78
+    exp                            shift and go to state 79
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 41
+state 42
 
     (25) exp -> ifc END .
 
@@ -2643,14 +2732,14 @@ state 41
     [               reduce using rule 25 (exp -> ifc END .)
 
 
-state 42
+state 43
 
     (26) exp -> FOR ID . IN it DO exp END
 
-    IN              shift and go to state 79
+    IN              shift and go to state 80
 
 
-state 43
+state 44
 
     (27) exp -> ( exp . )
     (11) exp -> exp . + exp
@@ -2661,23 +2750,23 @@ state 43
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
-    )               shift and go to state 80
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    or              shift and go to state 23
-    xor             shift and go to state 24
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    )               shift and go to state 81
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    or              shift and go to state 24
+    xor             shift and go to state 25
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
 
-state 44
+state 45
 
     (44) exp -> not exp .
     (11) exp -> exp . + exp
@@ -2688,7 +2777,7 @@ state 44
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     +               reduce using rule 44 (exp -> not exp .)
@@ -2713,19 +2802,19 @@ state 44
     ]               reduce using rule 44 (exp -> not exp .)
     [               reduce using rule 44 (exp -> not exp .)
 
-  ! +               [ shift and go to state 18 ]
-  ! -               [ shift and go to state 19 ]
-  ! *               [ shift and go to state 20 ]
-  ! DIV             [ shift and go to state 21 ]
-  ! POW             [ shift and go to state 22 ]
-  ! or              [ shift and go to state 23 ]
-  ! xor             [ shift and go to state 24 ]
-  ! and             [ shift and go to state 25 ]
-  ! imag            [ shift and go to state 26 ]
-  ! CMP             [ shift and go to state 27 ]
+  ! +               [ shift and go to state 19 ]
+  ! -               [ shift and go to state 20 ]
+  ! *               [ shift and go to state 21 ]
+  ! DIV             [ shift and go to state 22 ]
+  ! POW             [ shift and go to state 23 ]
+  ! or              [ shift and go to state 24 ]
+  ! xor             [ shift and go to state 25 ]
+  ! and             [ shift and go to state 26 ]
+  ! imag            [ shift and go to state 27 ]
+  ! CMP             [ shift and go to state 28 ]
 
 
-state 45
+state 46
 
     (45) exp -> SYS exp .
     (11) exp -> exp . + exp
@@ -2736,7 +2825,7 @@ state 45
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     $end            reduce using rule 45 (exp -> SYS exp .)
@@ -2750,16 +2839,16 @@ state 45
     ELSE            reduce using rule 45 (exp -> SYS exp .)
     ]               reduce using rule 45 (exp -> SYS exp .)
     [               reduce using rule 45 (exp -> SYS exp .)
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    or              shift and go to state 23
-    xor             shift and go to state 24
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    or              shift and go to state 24
+    xor             shift and go to state 25
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
   ! +               [ reduce using rule 45 (exp -> SYS exp .) ]
   ! -               [ reduce using rule 45 (exp -> SYS exp .) ]
@@ -2773,14 +2862,14 @@ state 45
   ! CMP             [ reduce using rule 45 (exp -> SYS exp .) ]
 
 
-state 46
+state 47
 
     (49) exp -> { seq . }
 
-    }               shift and go to state 81
+    }               shift and go to state 82
 
 
-state 47
+state 48
 
     (46) seq -> exp . ; seq
     (47) seq -> exp . ;
@@ -2793,26 +2882,26 @@ state 47
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
-    ;               shift and go to state 82
+    ;               shift and go to state 83
     }               reduce using rule 48 (seq -> exp .)
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    or              shift and go to state 23
-    xor             shift and go to state 24
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    or              shift and go to state 24
+    xor             shift and go to state 25
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
 
-state 48
+state 49
 
-    (52) exp -> WHILE exp . DO exp END
+    (53) exp -> WHILE exp . DO exp END
     (11) exp -> exp . + exp
     (12) exp -> exp . - exp
     (13) exp -> exp . * exp
@@ -2821,23 +2910,23 @@ state 48
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
-    DO              shift and go to state 83
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    or              shift and go to state 23
-    xor             shift and go to state 24
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    DO              shift and go to state 84
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    or              shift and go to state 24
+    xor             shift and go to state 25
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
 
-state 49
+state 50
 
     (22) ifc -> IF exp . THEN exp
     (23) ifc -> IF exp . THEN exp ELSE exp
@@ -2850,23 +2939,23 @@ state 49
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
-    THEN            shift and go to state 84
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    or              shift and go to state 23
-    xor             shift and go to state 24
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    THEN            shift and go to state 85
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    or              shift and go to state 24
+    xor             shift and go to state 25
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
 
-state 50
+state 51
 
     (29) it -> [ exp . , exp ]
     (31) it -> [ exp . , exp [
@@ -2878,23 +2967,23 @@ state 50
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
-    ,               shift and go to state 85
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    or              shift and go to state 23
-    xor             shift and go to state 24
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    ,               shift and go to state 86
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    or              shift and go to state 24
+    xor             shift and go to state 25
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
 
-state 51
+state 52
 
     (30) it -> ] exp . , exp ]
     (32) it -> ] exp . , exp [
@@ -2906,23 +2995,23 @@ state 51
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
-    ,               shift and go to state 86
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    or              shift and go to state 23
-    xor             shift and go to state 24
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    ,               shift and go to state 87
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    or              shift and go to state 24
+    xor             shift and go to state 25
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
 
-state 52
+state 53
 
     (11) exp -> exp + exp .
     (11) exp -> exp . + exp
@@ -2933,7 +3022,7 @@ state 52
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     +               reduce using rule 11 (exp -> exp + exp .)
@@ -2953,24 +3042,24 @@ state 52
     ELSE            reduce using rule 11 (exp -> exp + exp .)
     ]               reduce using rule 11 (exp -> exp + exp .)
     [               reduce using rule 11 (exp -> exp + exp .)
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    imag            shift and go to state 26
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    imag            shift and go to state 27
 
   ! *               [ reduce using rule 11 (exp -> exp + exp .) ]
   ! DIV             [ reduce using rule 11 (exp -> exp + exp .) ]
   ! POW             [ reduce using rule 11 (exp -> exp + exp .) ]
   ! imag            [ reduce using rule 11 (exp -> exp + exp .) ]
-  ! +               [ shift and go to state 18 ]
-  ! -               [ shift and go to state 19 ]
-  ! or              [ shift and go to state 23 ]
-  ! xor             [ shift and go to state 24 ]
-  ! and             [ shift and go to state 25 ]
-  ! CMP             [ shift and go to state 27 ]
+  ! +               [ shift and go to state 19 ]
+  ! -               [ shift and go to state 20 ]
+  ! or              [ shift and go to state 24 ]
+  ! xor             [ shift and go to state 25 ]
+  ! and             [ shift and go to state 26 ]
+  ! CMP             [ shift and go to state 28 ]
 
 
-state 53
+state 54
 
     (12) exp -> exp - exp .
     (11) exp -> exp . + exp
@@ -2981,7 +3070,7 @@ state 53
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     +               reduce using rule 12 (exp -> exp - exp .)
@@ -3001,24 +3090,24 @@ state 53
     ELSE            reduce using rule 12 (exp -> exp - exp .)
     ]               reduce using rule 12 (exp -> exp - exp .)
     [               reduce using rule 12 (exp -> exp - exp .)
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    imag            shift and go to state 26
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    imag            shift and go to state 27
 
   ! *               [ reduce using rule 12 (exp -> exp - exp .) ]
   ! DIV             [ reduce using rule 12 (exp -> exp - exp .) ]
   ! POW             [ reduce using rule 12 (exp -> exp - exp .) ]
   ! imag            [ reduce using rule 12 (exp -> exp - exp .) ]
-  ! +               [ shift and go to state 18 ]
-  ! -               [ shift and go to state 19 ]
-  ! or              [ shift and go to state 23 ]
-  ! xor             [ shift and go to state 24 ]
-  ! and             [ shift and go to state 25 ]
-  ! CMP             [ shift and go to state 27 ]
+  ! +               [ shift and go to state 19 ]
+  ! -               [ shift and go to state 20 ]
+  ! or              [ shift and go to state 24 ]
+  ! xor             [ shift and go to state 25 ]
+  ! and             [ shift and go to state 26 ]
+  ! CMP             [ shift and go to state 28 ]
 
 
-state 54
+state 55
 
     (13) exp -> exp * exp .
     (11) exp -> exp . + exp
@@ -3029,7 +3118,7 @@ state 54
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     +               reduce using rule 13 (exp -> exp * exp .)
@@ -3051,22 +3140,22 @@ state 54
     ELSE            reduce using rule 13 (exp -> exp * exp .)
     ]               reduce using rule 13 (exp -> exp * exp .)
     [               reduce using rule 13 (exp -> exp * exp .)
-    POW             shift and go to state 22
-    imag            shift and go to state 26
+    POW             shift and go to state 23
+    imag            shift and go to state 27
 
   ! POW             [ reduce using rule 13 (exp -> exp * exp .) ]
   ! imag            [ reduce using rule 13 (exp -> exp * exp .) ]
-  ! +               [ shift and go to state 18 ]
-  ! -               [ shift and go to state 19 ]
-  ! *               [ shift and go to state 20 ]
-  ! DIV             [ shift and go to state 21 ]
-  ! or              [ shift and go to state 23 ]
-  ! xor             [ shift and go to state 24 ]
-  ! and             [ shift and go to state 25 ]
-  ! CMP             [ shift and go to state 27 ]
+  ! +               [ shift and go to state 19 ]
+  ! -               [ shift and go to state 20 ]
+  ! *               [ shift and go to state 21 ]
+  ! DIV             [ shift and go to state 22 ]
+  ! or              [ shift and go to state 24 ]
+  ! xor             [ shift and go to state 25 ]
+  ! and             [ shift and go to state 26 ]
+  ! CMP             [ shift and go to state 28 ]
 
 
-state 55
+state 56
 
     (14) exp -> exp DIV exp .
     (11) exp -> exp . + exp
@@ -3077,7 +3166,7 @@ state 55
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     +               reduce using rule 14 (exp -> exp DIV exp .)
@@ -3099,22 +3188,22 @@ state 55
     ELSE            reduce using rule 14 (exp -> exp DIV exp .)
     ]               reduce using rule 14 (exp -> exp DIV exp .)
     [               reduce using rule 14 (exp -> exp DIV exp .)
-    POW             shift and go to state 22
-    imag            shift and go to state 26
+    POW             shift and go to state 23
+    imag            shift and go to state 27
 
   ! POW             [ reduce using rule 14 (exp -> exp DIV exp .) ]
   ! imag            [ reduce using rule 14 (exp -> exp DIV exp .) ]
-  ! +               [ shift and go to state 18 ]
-  ! -               [ shift and go to state 19 ]
-  ! *               [ shift and go to state 20 ]
-  ! DIV             [ shift and go to state 21 ]
-  ! or              [ shift and go to state 23 ]
-  ! xor             [ shift and go to state 24 ]
-  ! and             [ shift and go to state 25 ]
-  ! CMP             [ shift and go to state 27 ]
+  ! +               [ shift and go to state 19 ]
+  ! -               [ shift and go to state 20 ]
+  ! *               [ shift and go to state 21 ]
+  ! DIV             [ shift and go to state 22 ]
+  ! or              [ shift and go to state 24 ]
+  ! xor             [ shift and go to state 25 ]
+  ! and             [ shift and go to state 26 ]
+  ! CMP             [ shift and go to state 28 ]
 
 
-state 56
+state 57
 
     (15) exp -> exp POW exp .
     (11) exp -> exp . + exp
@@ -3125,7 +3214,7 @@ state 56
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     +               reduce using rule 15 (exp -> exp POW exp .)
@@ -3147,22 +3236,22 @@ state 56
     ELSE            reduce using rule 15 (exp -> exp POW exp .)
     ]               reduce using rule 15 (exp -> exp POW exp .)
     [               reduce using rule 15 (exp -> exp POW exp .)
-    POW             shift and go to state 22
-    imag            shift and go to state 26
+    POW             shift and go to state 23
+    imag            shift and go to state 27
 
   ! POW             [ reduce using rule 15 (exp -> exp POW exp .) ]
   ! imag            [ reduce using rule 15 (exp -> exp POW exp .) ]
-  ! +               [ shift and go to state 18 ]
-  ! -               [ shift and go to state 19 ]
-  ! *               [ shift and go to state 20 ]
-  ! DIV             [ shift and go to state 21 ]
-  ! or              [ shift and go to state 23 ]
-  ! xor             [ shift and go to state 24 ]
-  ! and             [ shift and go to state 25 ]
-  ! CMP             [ shift and go to state 27 ]
+  ! +               [ shift and go to state 19 ]
+  ! -               [ shift and go to state 20 ]
+  ! *               [ shift and go to state 21 ]
+  ! DIV             [ shift and go to state 22 ]
+  ! or              [ shift and go to state 24 ]
+  ! xor             [ shift and go to state 25 ]
+  ! and             [ shift and go to state 26 ]
+  ! CMP             [ shift and go to state 28 ]
 
 
-state 57
+state 58
 
     (16) exp -> exp or exp .
     (11) exp -> exp . + exp
@@ -3173,7 +3262,7 @@ state 57
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     or              reduce using rule 16 (exp -> exp or exp .)
@@ -3188,15 +3277,15 @@ state 57
     ELSE            reduce using rule 16 (exp -> exp or exp .)
     ]               reduce using rule 16 (exp -> exp or exp .)
     [               reduce using rule 16 (exp -> exp or exp .)
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    xor             shift and go to state 24
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    xor             shift and go to state 25
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
   ! +               [ reduce using rule 16 (exp -> exp or exp .) ]
   ! -               [ reduce using rule 16 (exp -> exp or exp .) ]
@@ -3207,10 +3296,10 @@ state 57
   ! and             [ reduce using rule 16 (exp -> exp or exp .) ]
   ! imag            [ reduce using rule 16 (exp -> exp or exp .) ]
   ! CMP             [ reduce using rule 16 (exp -> exp or exp .) ]
-  ! or              [ shift and go to state 23 ]
+  ! or              [ shift and go to state 24 ]
 
 
-state 58
+state 59
 
     (17) exp -> exp xor exp .
     (11) exp -> exp . + exp
@@ -3221,7 +3310,7 @@ state 58
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     or              reduce using rule 17 (exp -> exp xor exp .)
@@ -3237,14 +3326,14 @@ state 58
     ELSE            reduce using rule 17 (exp -> exp xor exp .)
     ]               reduce using rule 17 (exp -> exp xor exp .)
     [               reduce using rule 17 (exp -> exp xor exp .)
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
   ! +               [ reduce using rule 17 (exp -> exp xor exp .) ]
   ! -               [ reduce using rule 17 (exp -> exp xor exp .) ]
@@ -3254,11 +3343,11 @@ state 58
   ! and             [ reduce using rule 17 (exp -> exp xor exp .) ]
   ! imag            [ reduce using rule 17 (exp -> exp xor exp .) ]
   ! CMP             [ reduce using rule 17 (exp -> exp xor exp .) ]
-  ! or              [ shift and go to state 23 ]
-  ! xor             [ shift and go to state 24 ]
+  ! or              [ shift and go to state 24 ]
+  ! xor             [ shift and go to state 25 ]
 
 
-state 59
+state 60
 
     (18) exp -> exp and exp .
     (11) exp -> exp . + exp
@@ -3269,7 +3358,7 @@ state 59
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     or              reduce using rule 18 (exp -> exp and exp .)
@@ -3286,13 +3375,13 @@ state 59
     ELSE            reduce using rule 18 (exp -> exp and exp .)
     ]               reduce using rule 18 (exp -> exp and exp .)
     [               reduce using rule 18 (exp -> exp and exp .)
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
   ! +               [ reduce using rule 18 (exp -> exp and exp .) ]
   ! -               [ reduce using rule 18 (exp -> exp and exp .) ]
@@ -3301,12 +3390,12 @@ state 59
   ! POW             [ reduce using rule 18 (exp -> exp and exp .) ]
   ! imag            [ reduce using rule 18 (exp -> exp and exp .) ]
   ! CMP             [ reduce using rule 18 (exp -> exp and exp .) ]
-  ! or              [ shift and go to state 23 ]
-  ! xor             [ shift and go to state 24 ]
-  ! and             [ shift and go to state 25 ]
+  ! or              [ shift and go to state 24 ]
+  ! xor             [ shift and go to state 25 ]
+  ! and             [ shift and go to state 26 ]
 
 
-state 60
+state 61
 
     (19) cmp -> exp CMP exp .
     (11) exp -> exp . + exp
@@ -3317,7 +3406,7 @@ state 60
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     CMP             reduce using rule 19 (cmp -> exp CMP exp .)
@@ -3335,12 +3424,12 @@ state 60
     ELSE            reduce using rule 19 (cmp -> exp CMP exp .)
     ]               reduce using rule 19 (cmp -> exp CMP exp .)
     [               reduce using rule 19 (cmp -> exp CMP exp .)
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    imag            shift and go to state 26
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    imag            shift and go to state 27
 
   ! +               [ reduce using rule 19 (cmp -> exp CMP exp .) ]
   ! -               [ reduce using rule 19 (cmp -> exp CMP exp .) ]
@@ -3348,13 +3437,13 @@ state 60
   ! DIV             [ reduce using rule 19 (cmp -> exp CMP exp .) ]
   ! POW             [ reduce using rule 19 (cmp -> exp CMP exp .) ]
   ! imag            [ reduce using rule 19 (cmp -> exp CMP exp .) ]
-  ! or              [ shift and go to state 23 ]
-  ! xor             [ shift and go to state 24 ]
-  ! and             [ shift and go to state 25 ]
-  ! CMP             [ shift and go to state 27 ]
+  ! or              [ shift and go to state 24 ]
+  ! xor             [ shift and go to state 25 ]
+  ! and             [ shift and go to state 26 ]
+  ! CMP             [ shift and go to state 28 ]
 
 
-state 61
+state 62
 
     (1) exp -> ID + ASG . exp
     (1) exp -> . ID + ASG exp
@@ -3394,9 +3483,10 @@ state 61
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -3415,18 +3505,19 @@ state 61
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 87
+    exp                            shift and go to state 88
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 62
+state 63
 
     (34) exp -> ID + exp .
     (11) exp -> exp . + exp
@@ -3437,7 +3528,7 @@ state 62
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     +               reduce using rule 34 (exp -> ID + exp .)
@@ -3457,24 +3548,24 @@ state 62
     ELSE            reduce using rule 34 (exp -> ID + exp .)
     ]               reduce using rule 34 (exp -> ID + exp .)
     [               reduce using rule 34 (exp -> ID + exp .)
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    imag            shift and go to state 26
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    imag            shift and go to state 27
 
   ! *               [ reduce using rule 34 (exp -> ID + exp .) ]
   ! DIV             [ reduce using rule 34 (exp -> ID + exp .) ]
   ! POW             [ reduce using rule 34 (exp -> ID + exp .) ]
   ! imag            [ reduce using rule 34 (exp -> ID + exp .) ]
-  ! +               [ shift and go to state 18 ]
-  ! -               [ shift and go to state 19 ]
-  ! or              [ shift and go to state 23 ]
-  ! xor             [ shift and go to state 24 ]
-  ! and             [ shift and go to state 25 ]
-  ! CMP             [ shift and go to state 27 ]
+  ! +               [ shift and go to state 19 ]
+  ! -               [ shift and go to state 20 ]
+  ! or              [ shift and go to state 24 ]
+  ! xor             [ shift and go to state 25 ]
+  ! and             [ shift and go to state 26 ]
+  ! CMP             [ shift and go to state 28 ]
 
 
-state 63
+state 64
 
     (9) exp -> ID ASG exp .
     (11) exp -> exp . + exp
@@ -3485,7 +3576,7 @@ state 63
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     $end            reduce using rule 9 (exp -> ID ASG exp .)
@@ -3499,16 +3590,16 @@ state 63
     ELSE            reduce using rule 9 (exp -> ID ASG exp .)
     ]               reduce using rule 9 (exp -> ID ASG exp .)
     [               reduce using rule 9 (exp -> ID ASG exp .)
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    or              shift and go to state 23
-    xor             shift and go to state 24
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    or              shift and go to state 24
+    xor             shift and go to state 25
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
   ! +               [ reduce using rule 9 (exp -> ID ASG exp .) ]
   ! -               [ reduce using rule 9 (exp -> ID ASG exp .) ]
@@ -3522,7 +3613,7 @@ state 63
   ! CMP             [ reduce using rule 9 (exp -> ID ASG exp .) ]
 
 
-state 64
+state 65
 
     (2) exp -> ID - ASG . exp
     (1) exp -> . ID + ASG exp
@@ -3562,9 +3653,10 @@ state 64
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -3583,18 +3675,19 @@ state 64
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 88
+    exp                            shift and go to state 89
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 65
+state 66
 
     (35) exp -> ID - exp .
     (11) exp -> exp . + exp
@@ -3605,7 +3698,7 @@ state 65
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     +               reduce using rule 35 (exp -> ID - exp .)
@@ -3625,24 +3718,24 @@ state 65
     ELSE            reduce using rule 35 (exp -> ID - exp .)
     ]               reduce using rule 35 (exp -> ID - exp .)
     [               reduce using rule 35 (exp -> ID - exp .)
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    imag            shift and go to state 26
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    imag            shift and go to state 27
 
   ! *               [ reduce using rule 35 (exp -> ID - exp .) ]
   ! DIV             [ reduce using rule 35 (exp -> ID - exp .) ]
   ! POW             [ reduce using rule 35 (exp -> ID - exp .) ]
   ! imag            [ reduce using rule 35 (exp -> ID - exp .) ]
-  ! +               [ shift and go to state 18 ]
-  ! -               [ shift and go to state 19 ]
-  ! or              [ shift and go to state 23 ]
-  ! xor             [ shift and go to state 24 ]
-  ! and             [ shift and go to state 25 ]
-  ! CMP             [ shift and go to state 27 ]
+  ! +               [ shift and go to state 19 ]
+  ! -               [ shift and go to state 20 ]
+  ! or              [ shift and go to state 24 ]
+  ! xor             [ shift and go to state 25 ]
+  ! and             [ shift and go to state 26 ]
+  ! CMP             [ shift and go to state 28 ]
 
 
-state 66
+state 67
 
     (3) exp -> ID * ASG . exp
     (1) exp -> . ID + ASG exp
@@ -3682,9 +3775,10 @@ state 66
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -3703,18 +3797,19 @@ state 66
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 89
+    exp                            shift and go to state 90
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 67
+state 68
 
     (36) exp -> ID * exp .
     (11) exp -> exp . + exp
@@ -3725,7 +3820,7 @@ state 67
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     +               reduce using rule 36 (exp -> ID * exp .)
@@ -3747,22 +3842,22 @@ state 67
     ELSE            reduce using rule 36 (exp -> ID * exp .)
     ]               reduce using rule 36 (exp -> ID * exp .)
     [               reduce using rule 36 (exp -> ID * exp .)
-    POW             shift and go to state 22
-    imag            shift and go to state 26
+    POW             shift and go to state 23
+    imag            shift and go to state 27
 
   ! POW             [ reduce using rule 36 (exp -> ID * exp .) ]
   ! imag            [ reduce using rule 36 (exp -> ID * exp .) ]
-  ! +               [ shift and go to state 18 ]
-  ! -               [ shift and go to state 19 ]
-  ! *               [ shift and go to state 20 ]
-  ! DIV             [ shift and go to state 21 ]
-  ! or              [ shift and go to state 23 ]
-  ! xor             [ shift and go to state 24 ]
-  ! and             [ shift and go to state 25 ]
-  ! CMP             [ shift and go to state 27 ]
+  ! +               [ shift and go to state 19 ]
+  ! -               [ shift and go to state 20 ]
+  ! *               [ shift and go to state 21 ]
+  ! DIV             [ shift and go to state 22 ]
+  ! or              [ shift and go to state 24 ]
+  ! xor             [ shift and go to state 25 ]
+  ! and             [ shift and go to state 26 ]
+  ! CMP             [ shift and go to state 28 ]
 
 
-state 68
+state 69
 
     (4) exp -> ID DIV ASG . exp
     (1) exp -> . ID + ASG exp
@@ -3802,9 +3897,10 @@ state 68
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -3823,18 +3919,19 @@ state 68
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 90
+    exp                            shift and go to state 91
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 69
+state 70
 
     (37) exp -> ID DIV exp .
     (11) exp -> exp . + exp
@@ -3845,7 +3942,7 @@ state 69
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     +               reduce using rule 37 (exp -> ID DIV exp .)
@@ -3867,22 +3964,22 @@ state 69
     ELSE            reduce using rule 37 (exp -> ID DIV exp .)
     ]               reduce using rule 37 (exp -> ID DIV exp .)
     [               reduce using rule 37 (exp -> ID DIV exp .)
-    POW             shift and go to state 22
-    imag            shift and go to state 26
+    POW             shift and go to state 23
+    imag            shift and go to state 27
 
   ! POW             [ reduce using rule 37 (exp -> ID DIV exp .) ]
   ! imag            [ reduce using rule 37 (exp -> ID DIV exp .) ]
-  ! +               [ shift and go to state 18 ]
-  ! -               [ shift and go to state 19 ]
-  ! *               [ shift and go to state 20 ]
-  ! DIV             [ shift and go to state 21 ]
-  ! or              [ shift and go to state 23 ]
-  ! xor             [ shift and go to state 24 ]
-  ! and             [ shift and go to state 25 ]
-  ! CMP             [ shift and go to state 27 ]
+  ! +               [ shift and go to state 19 ]
+  ! -               [ shift and go to state 20 ]
+  ! *               [ shift and go to state 21 ]
+  ! DIV             [ shift and go to state 22 ]
+  ! or              [ shift and go to state 24 ]
+  ! xor             [ shift and go to state 25 ]
+  ! and             [ shift and go to state 26 ]
+  ! CMP             [ shift and go to state 28 ]
 
 
-state 70
+state 71
 
     (5) exp -> ID POW ASG . exp
     (1) exp -> . ID + ASG exp
@@ -3922,9 +4019,10 @@ state 70
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -3943,18 +4041,19 @@ state 70
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 91
+    exp                            shift and go to state 92
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 71
+state 72
 
     (38) exp -> ID POW exp .
     (11) exp -> exp . + exp
@@ -3965,7 +4064,7 @@ state 71
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     +               reduce using rule 38 (exp -> ID POW exp .)
@@ -3987,22 +4086,22 @@ state 71
     ELSE            reduce using rule 38 (exp -> ID POW exp .)
     ]               reduce using rule 38 (exp -> ID POW exp .)
     [               reduce using rule 38 (exp -> ID POW exp .)
-    POW             shift and go to state 22
-    imag            shift and go to state 26
+    POW             shift and go to state 23
+    imag            shift and go to state 27
 
   ! POW             [ reduce using rule 38 (exp -> ID POW exp .) ]
   ! imag            [ reduce using rule 38 (exp -> ID POW exp .) ]
-  ! +               [ shift and go to state 18 ]
-  ! -               [ shift and go to state 19 ]
-  ! *               [ shift and go to state 20 ]
-  ! DIV             [ shift and go to state 21 ]
-  ! or              [ shift and go to state 23 ]
-  ! xor             [ shift and go to state 24 ]
-  ! and             [ shift and go to state 25 ]
-  ! CMP             [ shift and go to state 27 ]
+  ! +               [ shift and go to state 19 ]
+  ! -               [ shift and go to state 20 ]
+  ! *               [ shift and go to state 21 ]
+  ! DIV             [ shift and go to state 22 ]
+  ! or              [ shift and go to state 24 ]
+  ! xor             [ shift and go to state 25 ]
+  ! and             [ shift and go to state 26 ]
+  ! CMP             [ shift and go to state 28 ]
 
 
-state 72
+state 73
 
     (6) exp -> ID or ASG . exp
     (1) exp -> . ID + ASG exp
@@ -4042,9 +4141,10 @@ state 72
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -4063,18 +4163,19 @@ state 72
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 92
+    exp                            shift and go to state 93
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 73
+state 74
 
     (39) exp -> ID or exp .
     (11) exp -> exp . + exp
@@ -4085,7 +4186,7 @@ state 73
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     or              reduce using rule 39 (exp -> ID or exp .)
@@ -4100,15 +4201,15 @@ state 73
     ELSE            reduce using rule 39 (exp -> ID or exp .)
     ]               reduce using rule 39 (exp -> ID or exp .)
     [               reduce using rule 39 (exp -> ID or exp .)
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    xor             shift and go to state 24
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    xor             shift and go to state 25
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
   ! +               [ reduce using rule 39 (exp -> ID or exp .) ]
   ! -               [ reduce using rule 39 (exp -> ID or exp .) ]
@@ -4119,10 +4220,10 @@ state 73
   ! and             [ reduce using rule 39 (exp -> ID or exp .) ]
   ! imag            [ reduce using rule 39 (exp -> ID or exp .) ]
   ! CMP             [ reduce using rule 39 (exp -> ID or exp .) ]
-  ! or              [ shift and go to state 23 ]
+  ! or              [ shift and go to state 24 ]
 
 
-state 74
+state 75
 
     (7) exp -> ID xor ASG . exp
     (1) exp -> . ID + ASG exp
@@ -4162,9 +4263,10 @@ state 74
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -4183,18 +4285,19 @@ state 74
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 93
+    exp                            shift and go to state 94
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 75
+state 76
 
     (40) exp -> ID xor exp .
     (11) exp -> exp . + exp
@@ -4205,7 +4308,7 @@ state 75
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     or              reduce using rule 40 (exp -> ID xor exp .)
@@ -4221,14 +4324,14 @@ state 75
     ELSE            reduce using rule 40 (exp -> ID xor exp .)
     ]               reduce using rule 40 (exp -> ID xor exp .)
     [               reduce using rule 40 (exp -> ID xor exp .)
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
   ! +               [ reduce using rule 40 (exp -> ID xor exp .) ]
   ! -               [ reduce using rule 40 (exp -> ID xor exp .) ]
@@ -4238,11 +4341,11 @@ state 75
   ! and             [ reduce using rule 40 (exp -> ID xor exp .) ]
   ! imag            [ reduce using rule 40 (exp -> ID xor exp .) ]
   ! CMP             [ reduce using rule 40 (exp -> ID xor exp .) ]
-  ! or              [ shift and go to state 23 ]
-  ! xor             [ shift and go to state 24 ]
+  ! or              [ shift and go to state 24 ]
+  ! xor             [ shift and go to state 25 ]
 
 
-state 76
+state 77
 
     (8) exp -> ID and ASG . exp
     (1) exp -> . ID + ASG exp
@@ -4282,9 +4385,10 @@ state 76
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -4303,18 +4407,19 @@ state 76
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 94
+    exp                            shift and go to state 95
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 77
+state 78
 
     (41) exp -> ID and exp .
     (11) exp -> exp . + exp
@@ -4325,7 +4430,7 @@ state 77
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     or              reduce using rule 41 (exp -> ID and exp .)
@@ -4342,13 +4447,13 @@ state 77
     ELSE            reduce using rule 41 (exp -> ID and exp .)
     ]               reduce using rule 41 (exp -> ID and exp .)
     [               reduce using rule 41 (exp -> ID and exp .)
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
   ! +               [ reduce using rule 41 (exp -> ID and exp .) ]
   ! -               [ reduce using rule 41 (exp -> ID and exp .) ]
@@ -4357,12 +4462,12 @@ state 77
   ! POW             [ reduce using rule 41 (exp -> ID and exp .) ]
   ! imag            [ reduce using rule 41 (exp -> ID and exp .) ]
   ! CMP             [ reduce using rule 41 (exp -> ID and exp .) ]
-  ! or              [ shift and go to state 23 ]
-  ! xor             [ shift and go to state 24 ]
-  ! and             [ shift and go to state 25 ]
+  ! or              [ shift and go to state 24 ]
+  ! xor             [ shift and go to state 25 ]
+  ! and             [ shift and go to state 26 ]
 
 
-state 78
+state 79
 
     (20) cmp -> cmp CMP exp .
     (11) exp -> exp . + exp
@@ -4373,7 +4478,7 @@ state 78
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     CMP             reduce using rule 20 (cmp -> cmp CMP exp .)
@@ -4391,12 +4496,12 @@ state 78
     ELSE            reduce using rule 20 (cmp -> cmp CMP exp .)
     ]               reduce using rule 20 (cmp -> cmp CMP exp .)
     [               reduce using rule 20 (cmp -> cmp CMP exp .)
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    imag            shift and go to state 26
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    imag            shift and go to state 27
 
   ! +               [ reduce using rule 20 (cmp -> cmp CMP exp .) ]
   ! -               [ reduce using rule 20 (cmp -> cmp CMP exp .) ]
@@ -4404,13 +4509,13 @@ state 78
   ! DIV             [ reduce using rule 20 (cmp -> cmp CMP exp .) ]
   ! POW             [ reduce using rule 20 (cmp -> cmp CMP exp .) ]
   ! imag            [ reduce using rule 20 (cmp -> cmp CMP exp .) ]
-  ! or              [ shift and go to state 23 ]
-  ! xor             [ shift and go to state 24 ]
-  ! and             [ shift and go to state 25 ]
-  ! CMP             [ shift and go to state 27 ]
+  ! or              [ shift and go to state 24 ]
+  ! xor             [ shift and go to state 25 ]
+  ! and             [ shift and go to state 26 ]
+  ! CMP             [ shift and go to state 28 ]
 
 
-state 79
+state 80
 
     (26) exp -> FOR ID IN . it DO exp END
     (29) it -> . [ exp , exp ]
@@ -4418,12 +4523,12 @@ state 79
     (31) it -> . [ exp , exp [
     (32) it -> . ] exp , exp [
 
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    it                             shift and go to state 95
+    it                             shift and go to state 96
 
-state 80
+state 81
 
     (27) exp -> ( exp ) .
 
@@ -4450,7 +4555,7 @@ state 80
     [               reduce using rule 27 (exp -> ( exp ) .)
 
 
-state 81
+state 82
 
     (49) exp -> { seq } .
 
@@ -4477,7 +4582,7 @@ state 81
     [               reduce using rule 49 (exp -> { seq } .)
 
 
-state 82
+state 83
 
     (46) seq -> exp ; . seq
     (47) seq -> exp ; .
@@ -4521,9 +4626,10 @@ state 82
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -4543,21 +4649,22 @@ state 82
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 47
-    seq                            shift and go to state 96
+    exp                            shift and go to state 48
+    seq                            shift and go to state 97
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 83
+state 84
 
-    (52) exp -> WHILE exp DO . exp END
+    (53) exp -> WHILE exp DO . exp END
     (1) exp -> . ID + ASG exp
     (2) exp -> . ID - ASG exp
     (3) exp -> . ID * ASG exp
@@ -4595,9 +4702,10 @@ state 83
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -4616,18 +4724,19 @@ state 83
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 97
+    exp                            shift and go to state 98
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 84
+state 85
 
     (22) ifc -> IF exp THEN . exp
     (23) ifc -> IF exp THEN . exp ELSE exp
@@ -4669,9 +4778,10 @@ state 84
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -4690,18 +4800,19 @@ state 84
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 98
+    exp                            shift and go to state 99
     ifc                            shift and go to state 6
     cmp                            shift and go to state 5
     it                             shift and go to state 8
 
-state 85
+state 86
 
     (29) it -> [ exp , . exp ]
     (31) it -> [ exp , . exp [
@@ -4742,9 +4853,10 @@ state 85
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -4763,18 +4875,19 @@ state 85
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 99
+    exp                            shift and go to state 100
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 86
+state 87
 
     (30) it -> ] exp , . exp ]
     (32) it -> ] exp , . exp [
@@ -4815,9 +4928,10 @@ state 86
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -4836,18 +4950,19 @@ state 86
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 100
+    exp                            shift and go to state 101
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
     it                             shift and go to state 8
 
-state 87
+state 88
 
     (1) exp -> ID + ASG exp .
     (11) exp -> exp . + exp
@@ -4858,7 +4973,7 @@ state 87
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     $end            reduce using rule 1 (exp -> ID + ASG exp .)
@@ -4872,16 +4987,16 @@ state 87
     ELSE            reduce using rule 1 (exp -> ID + ASG exp .)
     ]               reduce using rule 1 (exp -> ID + ASG exp .)
     [               reduce using rule 1 (exp -> ID + ASG exp .)
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    or              shift and go to state 23
-    xor             shift and go to state 24
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    or              shift and go to state 24
+    xor             shift and go to state 25
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
   ! +               [ reduce using rule 1 (exp -> ID + ASG exp .) ]
   ! -               [ reduce using rule 1 (exp -> ID + ASG exp .) ]
@@ -4895,7 +5010,7 @@ state 87
   ! CMP             [ reduce using rule 1 (exp -> ID + ASG exp .) ]
 
 
-state 88
+state 89
 
     (2) exp -> ID - ASG exp .
     (11) exp -> exp . + exp
@@ -4906,7 +5021,7 @@ state 88
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     $end            reduce using rule 2 (exp -> ID - ASG exp .)
@@ -4920,16 +5035,16 @@ state 88
     ELSE            reduce using rule 2 (exp -> ID - ASG exp .)
     ]               reduce using rule 2 (exp -> ID - ASG exp .)
     [               reduce using rule 2 (exp -> ID - ASG exp .)
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    or              shift and go to state 23
-    xor             shift and go to state 24
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    or              shift and go to state 24
+    xor             shift and go to state 25
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
   ! +               [ reduce using rule 2 (exp -> ID - ASG exp .) ]
   ! -               [ reduce using rule 2 (exp -> ID - ASG exp .) ]
@@ -4943,7 +5058,7 @@ state 88
   ! CMP             [ reduce using rule 2 (exp -> ID - ASG exp .) ]
 
 
-state 89
+state 90
 
     (3) exp -> ID * ASG exp .
     (11) exp -> exp . + exp
@@ -4954,7 +5069,7 @@ state 89
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     $end            reduce using rule 3 (exp -> ID * ASG exp .)
@@ -4968,16 +5083,16 @@ state 89
     ELSE            reduce using rule 3 (exp -> ID * ASG exp .)
     ]               reduce using rule 3 (exp -> ID * ASG exp .)
     [               reduce using rule 3 (exp -> ID * ASG exp .)
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    or              shift and go to state 23
-    xor             shift and go to state 24
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    or              shift and go to state 24
+    xor             shift and go to state 25
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
   ! +               [ reduce using rule 3 (exp -> ID * ASG exp .) ]
   ! -               [ reduce using rule 3 (exp -> ID * ASG exp .) ]
@@ -4991,7 +5106,7 @@ state 89
   ! CMP             [ reduce using rule 3 (exp -> ID * ASG exp .) ]
 
 
-state 90
+state 91
 
     (4) exp -> ID DIV ASG exp .
     (11) exp -> exp . + exp
@@ -5002,7 +5117,7 @@ state 90
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     $end            reduce using rule 4 (exp -> ID DIV ASG exp .)
@@ -5016,16 +5131,16 @@ state 90
     ELSE            reduce using rule 4 (exp -> ID DIV ASG exp .)
     ]               reduce using rule 4 (exp -> ID DIV ASG exp .)
     [               reduce using rule 4 (exp -> ID DIV ASG exp .)
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    or              shift and go to state 23
-    xor             shift and go to state 24
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    or              shift and go to state 24
+    xor             shift and go to state 25
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
   ! +               [ reduce using rule 4 (exp -> ID DIV ASG exp .) ]
   ! -               [ reduce using rule 4 (exp -> ID DIV ASG exp .) ]
@@ -5039,7 +5154,7 @@ state 90
   ! CMP             [ reduce using rule 4 (exp -> ID DIV ASG exp .) ]
 
 
-state 91
+state 92
 
     (5) exp -> ID POW ASG exp .
     (11) exp -> exp . + exp
@@ -5050,7 +5165,7 @@ state 91
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     $end            reduce using rule 5 (exp -> ID POW ASG exp .)
@@ -5064,16 +5179,16 @@ state 91
     ELSE            reduce using rule 5 (exp -> ID POW ASG exp .)
     ]               reduce using rule 5 (exp -> ID POW ASG exp .)
     [               reduce using rule 5 (exp -> ID POW ASG exp .)
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    or              shift and go to state 23
-    xor             shift and go to state 24
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    or              shift and go to state 24
+    xor             shift and go to state 25
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
   ! +               [ reduce using rule 5 (exp -> ID POW ASG exp .) ]
   ! -               [ reduce using rule 5 (exp -> ID POW ASG exp .) ]
@@ -5087,7 +5202,7 @@ state 91
   ! CMP             [ reduce using rule 5 (exp -> ID POW ASG exp .) ]
 
 
-state 92
+state 93
 
     (6) exp -> ID or ASG exp .
     (11) exp -> exp . + exp
@@ -5098,7 +5213,7 @@ state 92
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     $end            reduce using rule 6 (exp -> ID or ASG exp .)
@@ -5112,16 +5227,16 @@ state 92
     ELSE            reduce using rule 6 (exp -> ID or ASG exp .)
     ]               reduce using rule 6 (exp -> ID or ASG exp .)
     [               reduce using rule 6 (exp -> ID or ASG exp .)
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    or              shift and go to state 23
-    xor             shift and go to state 24
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    or              shift and go to state 24
+    xor             shift and go to state 25
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
   ! +               [ reduce using rule 6 (exp -> ID or ASG exp .) ]
   ! -               [ reduce using rule 6 (exp -> ID or ASG exp .) ]
@@ -5135,7 +5250,7 @@ state 92
   ! CMP             [ reduce using rule 6 (exp -> ID or ASG exp .) ]
 
 
-state 93
+state 94
 
     (7) exp -> ID xor ASG exp .
     (11) exp -> exp . + exp
@@ -5146,7 +5261,7 @@ state 93
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     $end            reduce using rule 7 (exp -> ID xor ASG exp .)
@@ -5160,16 +5275,16 @@ state 93
     ELSE            reduce using rule 7 (exp -> ID xor ASG exp .)
     ]               reduce using rule 7 (exp -> ID xor ASG exp .)
     [               reduce using rule 7 (exp -> ID xor ASG exp .)
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    or              shift and go to state 23
-    xor             shift and go to state 24
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    or              shift and go to state 24
+    xor             shift and go to state 25
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
   ! +               [ reduce using rule 7 (exp -> ID xor ASG exp .) ]
   ! -               [ reduce using rule 7 (exp -> ID xor ASG exp .) ]
@@ -5183,7 +5298,7 @@ state 93
   ! CMP             [ reduce using rule 7 (exp -> ID xor ASG exp .) ]
 
 
-state 94
+state 95
 
     (8) exp -> ID and ASG exp .
     (11) exp -> exp . + exp
@@ -5194,7 +5309,7 @@ state 94
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     $end            reduce using rule 8 (exp -> ID and ASG exp .)
@@ -5208,16 +5323,16 @@ state 94
     ELSE            reduce using rule 8 (exp -> ID and ASG exp .)
     ]               reduce using rule 8 (exp -> ID and ASG exp .)
     [               reduce using rule 8 (exp -> ID and ASG exp .)
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    or              shift and go to state 23
-    xor             shift and go to state 24
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    or              shift and go to state 24
+    xor             shift and go to state 25
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
   ! +               [ reduce using rule 8 (exp -> ID and ASG exp .) ]
   ! -               [ reduce using rule 8 (exp -> ID and ASG exp .) ]
@@ -5231,23 +5346,23 @@ state 94
   ! CMP             [ reduce using rule 8 (exp -> ID and ASG exp .) ]
 
 
-state 95
+state 96
 
     (26) exp -> FOR ID IN it . DO exp END
 
-    DO              shift and go to state 101
+    DO              shift and go to state 102
 
 
-state 96
+state 97
 
     (46) seq -> exp ; seq .
 
     }               reduce using rule 46 (seq -> exp ; seq .)
 
 
-state 97
+state 98
 
-    (52) exp -> WHILE exp DO exp . END
+    (53) exp -> WHILE exp DO exp . END
     (11) exp -> exp . + exp
     (12) exp -> exp . - exp
     (13) exp -> exp . * exp
@@ -5256,23 +5371,23 @@ state 97
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
-    END             shift and go to state 102
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    or              shift and go to state 23
-    xor             shift and go to state 24
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    END             shift and go to state 103
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    or              shift and go to state 24
+    xor             shift and go to state 25
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
 
-state 98
+state 99
 
     (22) ifc -> IF exp THEN exp .
     (23) ifc -> IF exp THEN exp . ELSE exp
@@ -5285,24 +5400,24 @@ state 98
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     END             reduce using rule 22 (ifc -> IF exp THEN exp .)
-    ELSE            shift and go to state 103
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    or              shift and go to state 23
-    xor             shift and go to state 24
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    ELSE            shift and go to state 104
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    or              shift and go to state 24
+    xor             shift and go to state 25
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
 
-state 99
+state 100
 
     (29) it -> [ exp , exp . ]
     (31) it -> [ exp , exp . [
@@ -5314,24 +5429,24 @@ state 99
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
-    ]               shift and go to state 105
-    [               shift and go to state 104
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    or              shift and go to state 23
-    xor             shift and go to state 24
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    ]               shift and go to state 106
+    [               shift and go to state 105
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    or              shift and go to state 24
+    xor             shift and go to state 25
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
 
-state 100
+state 101
 
     (30) it -> ] exp , exp . ]
     (32) it -> ] exp , exp . [
@@ -5343,24 +5458,24 @@ state 100
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
-    ]               shift and go to state 106
-    [               shift and go to state 107
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    or              shift and go to state 23
-    xor             shift and go to state 24
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    ]               shift and go to state 107
+    [               shift and go to state 108
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    or              shift and go to state 24
+    xor             shift and go to state 25
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
 
-state 101
+state 102
 
     (26) exp -> FOR ID IN it DO . exp END
     (1) exp -> . ID + ASG exp
@@ -5400,9 +5515,10 @@ state 101
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (19) cmp -> . exp CMP exp
     (20) cmp -> . cmp CMP exp
     (22) ifc -> . IF exp THEN exp
@@ -5421,45 +5537,46 @@ state 101
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
     it                             shift and go to state 8
-    exp                            shift and go to state 108
+    exp                            shift and go to state 109
     cmp                            shift and go to state 5
     ifc                            shift and go to state 6
 
-state 102
-
-    (52) exp -> WHILE exp DO exp END .
-
-    +               reduce using rule 52 (exp -> WHILE exp DO exp END .)
-    -               reduce using rule 52 (exp -> WHILE exp DO exp END .)
-    *               reduce using rule 52 (exp -> WHILE exp DO exp END .)
-    DIV             reduce using rule 52 (exp -> WHILE exp DO exp END .)
-    POW             reduce using rule 52 (exp -> WHILE exp DO exp END .)
-    or              reduce using rule 52 (exp -> WHILE exp DO exp END .)
-    xor             reduce using rule 52 (exp -> WHILE exp DO exp END .)
-    and             reduce using rule 52 (exp -> WHILE exp DO exp END .)
-    imag            reduce using rule 52 (exp -> WHILE exp DO exp END .)
-    CMP             reduce using rule 52 (exp -> WHILE exp DO exp END .)
-    $end            reduce using rule 52 (exp -> WHILE exp DO exp END .)
-    )               reduce using rule 52 (exp -> WHILE exp DO exp END .)
-    ;               reduce using rule 52 (exp -> WHILE exp DO exp END .)
-    }               reduce using rule 52 (exp -> WHILE exp DO exp END .)
-    DO              reduce using rule 52 (exp -> WHILE exp DO exp END .)
-    THEN            reduce using rule 52 (exp -> WHILE exp DO exp END .)
-    ,               reduce using rule 52 (exp -> WHILE exp DO exp END .)
-    END             reduce using rule 52 (exp -> WHILE exp DO exp END .)
-    ELSE            reduce using rule 52 (exp -> WHILE exp DO exp END .)
-    ]               reduce using rule 52 (exp -> WHILE exp DO exp END .)
-    [               reduce using rule 52 (exp -> WHILE exp DO exp END .)
-
-
 state 103
+
+    (53) exp -> WHILE exp DO exp END .
+
+    +               reduce using rule 53 (exp -> WHILE exp DO exp END .)
+    -               reduce using rule 53 (exp -> WHILE exp DO exp END .)
+    *               reduce using rule 53 (exp -> WHILE exp DO exp END .)
+    DIV             reduce using rule 53 (exp -> WHILE exp DO exp END .)
+    POW             reduce using rule 53 (exp -> WHILE exp DO exp END .)
+    or              reduce using rule 53 (exp -> WHILE exp DO exp END .)
+    xor             reduce using rule 53 (exp -> WHILE exp DO exp END .)
+    and             reduce using rule 53 (exp -> WHILE exp DO exp END .)
+    imag            reduce using rule 53 (exp -> WHILE exp DO exp END .)
+    CMP             reduce using rule 53 (exp -> WHILE exp DO exp END .)
+    $end            reduce using rule 53 (exp -> WHILE exp DO exp END .)
+    )               reduce using rule 53 (exp -> WHILE exp DO exp END .)
+    ;               reduce using rule 53 (exp -> WHILE exp DO exp END .)
+    }               reduce using rule 53 (exp -> WHILE exp DO exp END .)
+    DO              reduce using rule 53 (exp -> WHILE exp DO exp END .)
+    THEN            reduce using rule 53 (exp -> WHILE exp DO exp END .)
+    ,               reduce using rule 53 (exp -> WHILE exp DO exp END .)
+    END             reduce using rule 53 (exp -> WHILE exp DO exp END .)
+    ELSE            reduce using rule 53 (exp -> WHILE exp DO exp END .)
+    ]               reduce using rule 53 (exp -> WHILE exp DO exp END .)
+    [               reduce using rule 53 (exp -> WHILE exp DO exp END .)
+
+
+state 104
 
     (23) ifc -> IF exp THEN exp ELSE . exp
     (24) ifc -> IF exp THEN exp ELSE . ifc
@@ -5500,9 +5617,10 @@ state 103
     (44) exp -> . not exp
     (45) exp -> . SYS exp
     (49) exp -> . { seq }
-    (50) exp -> . exp imag
-    (51) exp -> . NUM
-    (52) exp -> . WHILE exp DO exp END
+    (50) exp -> . STR
+    (51) exp -> . exp imag
+    (52) exp -> . NUM
+    (53) exp -> . WHILE exp DO exp END
     (22) ifc -> . IF exp THEN exp
     (23) ifc -> . IF exp THEN exp ELSE exp
     (24) ifc -> . IF exp THEN exp ELSE ifc
@@ -5521,18 +5639,19 @@ state 103
     not             shift and go to state 10
     SYS             shift and go to state 11
     {               shift and go to state 12
-    NUM             shift and go to state 13
-    WHILE           shift and go to state 14
-    IF              shift and go to state 15
-    [               shift and go to state 16
-    ]               shift and go to state 17
+    STR             shift and go to state 13
+    NUM             shift and go to state 14
+    WHILE           shift and go to state 15
+    IF              shift and go to state 16
+    [               shift and go to state 17
+    ]               shift and go to state 18
 
-    exp                            shift and go to state 109
-    ifc                            shift and go to state 110
+    exp                            shift and go to state 110
+    ifc                            shift and go to state 111
     cmp                            shift and go to state 5
     it                             shift and go to state 8
 
-state 104
+state 105
 
     (31) it -> [ exp , exp [ .
 
@@ -5559,7 +5678,7 @@ state 104
     [               reduce using rule 31 (it -> [ exp , exp [ .)
 
 
-state 105
+state 106
 
     (29) it -> [ exp , exp ] .
 
@@ -5586,7 +5705,7 @@ state 105
     [               reduce using rule 29 (it -> [ exp , exp ] .)
 
 
-state 106
+state 107
 
     (30) it -> ] exp , exp ] .
 
@@ -5613,7 +5732,7 @@ state 106
     [               reduce using rule 30 (it -> ] exp , exp ] .)
 
 
-state 107
+state 108
 
     (32) it -> ] exp , exp [ .
 
@@ -5640,7 +5759,7 @@ state 107
     [               reduce using rule 32 (it -> ] exp , exp [ .)
 
 
-state 108
+state 109
 
     (26) exp -> FOR ID IN it DO exp . END
     (11) exp -> exp . + exp
@@ -5651,23 +5770,23 @@ state 108
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
-    END             shift and go to state 111
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    or              shift and go to state 23
-    xor             shift and go to state 24
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    END             shift and go to state 112
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    or              shift and go to state 24
+    xor             shift and go to state 25
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
 
-state 109
+state 110
 
     (23) ifc -> IF exp THEN exp ELSE exp .
     (11) exp -> exp . + exp
@@ -5678,33 +5797,33 @@ state 109
     (16) exp -> exp . or exp
     (17) exp -> exp . xor exp
     (18) exp -> exp . and exp
-    (50) exp -> exp . imag
+    (51) exp -> exp . imag
     (19) cmp -> exp . CMP exp
 
     END             reduce using rule 23 (ifc -> IF exp THEN exp ELSE exp .)
-    +               shift and go to state 18
-    -               shift and go to state 19
-    *               shift and go to state 20
-    DIV             shift and go to state 21
-    POW             shift and go to state 22
-    or              shift and go to state 23
-    xor             shift and go to state 24
-    and             shift and go to state 25
-    imag            shift and go to state 26
-    CMP             shift and go to state 27
+    +               shift and go to state 19
+    -               shift and go to state 20
+    *               shift and go to state 21
+    DIV             shift and go to state 22
+    POW             shift and go to state 23
+    or              shift and go to state 24
+    xor             shift and go to state 25
+    and             shift and go to state 26
+    imag            shift and go to state 27
+    CMP             shift and go to state 28
 
 
-state 110
+state 111
 
     (24) ifc -> IF exp THEN exp ELSE ifc .
     (25) exp -> ifc . END
 
     END             reduce using rule 24 (ifc -> IF exp THEN exp ELSE ifc .)
 
-  ! END             [ shift and go to state 41 ]
+  ! END             [ shift and go to state 42 ]
 
 
-state 111
+state 112
 
     (26) exp -> FOR ID IN it DO exp END .
 

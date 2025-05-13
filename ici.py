@@ -58,10 +58,14 @@ from ply.lex import lex
 literals = r'+-*(){};[],'
 reserved = {'mod': 'DIV', 'imag':'imag', 'e':'POW', 'or': 'or', 'xor': 'xor', 'and': 'and', 'not':'not',
 		'echo': 'SYS', 'load': 'SYS',
-		'wenn': 'IF', 'solange': 'WHILE', 'für': 'FOR', 'in': 'IN',
-		'¿': 'IF', '⟳' :'WHILE', '∀': 'FOR', '∈': 'IN'}
-tokens = ['NUM', 'ID', 'ASG', 'USG', 'DIV', 'POW', 'CMP'] + list(reserved.values()) + ['THEN', 'DO', 'ELSE', 'END']
+		'solange': 'WHILE', 'für': 'FOR', 'in': 'IN',
+		'⟳' :'WHILE', '∀': 'FOR', '∈': 'IN'}
+tokens = ['NUM', 'STR', 'ID', 'ASG', 'USG', 'DIV', 'POW', 'CMP'] + list(reserved.values()) + ['IF', 'THEN', 'DO', 'ELSE', 'END']
 tokens = list(set(tokens))
+
+def t_IF(t):
+	r'wenn|¿'
+	return t
 
 def t_DO(t):
 	r',\s*mach|:'
@@ -83,7 +87,7 @@ def t_ID(t):
 	return t
 
 t_NUM = r'(0|[1-9][0-9]*)\.([0-9]*[1-9]|0)' + '|' + r'0b0|0b1[0|1]*|0x0|0x[1-9a-fA-F][0-9a-fA-F]*|0|[1-9][0-9]*'
-
+t_STR = r'".*"'
 t_ASG = r'='
 t_USG = r'(\+\+|--)((?!' + t_NUM + '|' + t_ID.__doc__ + ')|(?=imag))' # edge cases: ['1++1', '1++a', 'a++imag']
 t_DIV = r'[|\/\\]'
@@ -120,8 +124,9 @@ precedence = [	['left', 'ID'],
 ]
 
 # simples
-rule_node('id', 'exp : ID', 1)
-rule_node('val','exp : NUM', 1)
+rule_node('id',  'exp : ID', 1)
+rule_node('val', 'exp : NUM', 1)
+rule_node('str', 'exp : STR', 1)
 
 # operators
 for binop in ["'+'", "'-'", "'*'", 'DIV', 'POW', 'or', 'xor', 'and']:
@@ -183,7 +188,12 @@ NONE=float('NaN')
 
 import math, cmath
 
-int2str = lambda x: bytes.fromhex(hex(x)[2:].zfill(2)).decode('ascii')
+def int2str(x):
+	try:
+		return bytes.fromhex(hex(x)[2:].zfill(2)).decode('ascii')
+	except Exception: return '\uFFFD'
+		
+
 ops = { '+'	: lambda x,y: x+y,
 	'-'	: lambda x,y: x-y,
 	'*'	: lambda x,y: x*y,
@@ -201,7 +211,7 @@ ops = { '+'	: lambda x,y: x+y,
 	'and'	: lambda x,y: int(bool(x) and bool(y)),
 	'not'	: lambda x: int(not bool(x)),
 	'echo'	: lambda x: print('\x1b[0;33m' + int2str(x) + '\x1b[0m') or x,
-	'load'	: lambda x: eval(parser.parse(open(int2str(x), 'r').read()), {}) or 0}
+	'load'	: lambda x: eval(parser.parse(open(int2str(x), 'r').read()), env) or NONE}
 
 cmp = { '<'	: lambda x,y: x <  y,
 	'<='	: lambda x,y: x <= y,
@@ -220,6 +230,8 @@ def eval(exp, env):
 			return int(all([cmp[op[i]](x[i], x[i+1]) for i in range(len(op))]))
 		case ('val', x):
 			return pyeval(x) # zieh, zieh, zieh
+		case ('str', x):
+			return pyeval('0x' + pyeval(x).encode().hex())
 		case ('asg', op, x, *exp):
 			if x not in env: env[x] = 0
 			if op == '=':  env[x] = eval(*exp, env)
