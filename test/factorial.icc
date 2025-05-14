@@ -8,8 +8,19 @@
 	stdin = "/dev/stdin"; 
 	echo "F(n) - input 'n'"; 
 	n = load stdin;
-	¿n>=0? {
-		fact = 1;
-		∀ i ∈ ]2,n+1[: fact *= i.
-	}.
+	f = 1;
+	¿1?
+	# Unicode Hell #
+		¿n>=0? ∀ i ∈ ]2,n[: f *= i..
+	, sonst wenn 0 gilt
+	# lieber nicht #
+		Wenn n >= 0 gilt
+			Für i in ]2,n[, mach f *= i.
+		.
+	, else if 0 then
+	# most normal #
+		if n >= 0 then
+			for i in ]2,n[, do f *= i.
+		.
+	.; f
 }

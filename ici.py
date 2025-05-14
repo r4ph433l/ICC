@@ -67,13 +67,13 @@ reserved = {'mod': 'DIV', 'imag':'imag', 'e':'POW', 'or': 'or', 'xor': 'xor', 'a
 tokens = ['NUM', 'STR', 'ID', 'ASG', 'USG', 'DIV', 'POW', 'CMP'] + ['IF', 'THEN', 'DO', 'ELSE', 'WHILE', 'FOR', 'IN', 'END'] + list(reserved.values()) 
 tokens = list(set(tokens))
 
-_t('IF',	r'[wW]enn|¿')
+_t('IF',	r'[wW]enn|if|¿')
 _t('IN',	r'in|∈')
-_t('FOR',	r'[fF]ür|∀')
-_t('WHILE',	r'[sS]olange|⟳')
-_t('DO',	r',\s*mach|:')
-_t('THEN',	r'gilt|\?')
-_t('ELSE',	r',\s*sonst|\!')
+_t('FOR',	r'[fF]ür|for|∀')
+_t('WHILE',	r'[sS]olange|while|⟳')
+_t('DO',	r',\s*(mach|do)|:')
+_t('THEN',	r'gilt|then|\?')
+_t('ELSE',	r',\s*(sonst|else)|\!')
 t_END =		r'\.'
 
 def t_ID(t):
@@ -123,7 +123,7 @@ precedence = [	['left', 'ID'],
 # simples
 rule_node('id',  'exp : ID', 1)
 rule_node('val', 'exp : NUM', 1)
-rule_node('str', 'exp : STR', 1)
+rule_node('val', 'exp : STR', 1)
 
 # operators
 for binop in ["'+'", "'-'", "'*'", 'DIV', 'POW', 'or', 'xor', 'and']:
@@ -159,15 +159,15 @@ rule_func('ctl', 'ifc : IF exp THEN exp ELSE ifc %prec IF', lambda p: ('if', p[2
 rule_func('ctl', 'exp : ifc END', lambda p: p[1])
 
 # iterator
-rule_func('it', "it : '[' exp ',' exp ']'", lambda p: ('it', p[2], p[4], 1))
-rule_func('it', "it : ']' exp ',' exp ']'", lambda p: ('it', p[2], p[4], 2))
-rule_func('it', "it : '[' exp ',' exp '['", lambda p: ('it', p[2], p[4], 3))
-rule_func('it', "it : ']' exp ',' exp '['", lambda p: ('it', p[2], p[4], 4))
-rule_func('it', 'exp : it', lambda p: p[1])
+rule_func('it', "it : '[' exp ',' exp ']'", lambda p: ('it', p[2], p[4], (False, False)))
+rule_func('it', "it : ']' exp ',' exp ']'", lambda p: ('it', p[2], p[4], (True , False)))
+rule_func('it', "it : '[' exp ',' exp '['", lambda p: ('it', p[2], p[4], (False, True )))
+rule_func('it', "it : ']' exp ',' exp '['", lambda p: ('it', p[2], p[4], (True , True )))
 rule_func('it', 'exp : exp IN it', lambda p: ('in', p[1], p[3]))
 
 # loops
-rule_func('for', 'exp : FOR ID IN it DO exp END', lambda p: ('for', p[2], p[4], p[6]))
+rule_func('for', 'exp : FOR ID IN it DO exp END', lambda p: ('for', p[2], p[4] ,p[6], ('val', '1')))
+rule_func('for', 'exp : FOR NUM ID IN it DO exp END', lambda p: ('for', p[3], p[5], p[7], ('val', p[2])))
 rule_func('while', 'exp : WHILE exp DO exp END', lambda p: ('while', p[2], p[4]))
 
 # load and echo
@@ -186,12 +186,6 @@ NONE=float('NaN')
 
 import math, cmath
 
-def int2str(x):
-	try:
-		return bytes.fromhex(hex(x)[2:].zfill(2)).decode('ascii')
-	except Exception: return '\uFFFD'
-		
-
 ops = { '+'	: lambda x,y: x+y,
 	'-'	: lambda x,y: x-y,
 	'*'	: lambda x,y: x*y,
@@ -208,8 +202,8 @@ ops = { '+'	: lambda x,y: x+y,
 	'xor'	: lambda x,y: int(bool(x) ==  bool(y)),
 	'and'	: lambda x,y: int(bool(x) and bool(y)),
 	'not'	: lambda x: int(not bool(x)),
-	'echo'	: lambda x: print('\x1b[0;33m' + int2str(x) + '\x1b[0m') or x,
-	'load'	: lambda x: eval(parser.parse(open(int2str(x), 'r').read()), env) or NONE}
+	'echo'	: lambda x: print('\x1b[0;33m' + str(x) + '\x1b[0m') or x,
+	'load'	: lambda x: eval(parser.parse(open(x, 'r').read()), env) or NONE}
 
 cmp = { '<'	: lambda x,y: x <  y,
 	'<='	: lambda x,y: x <= y,
@@ -228,8 +222,6 @@ def eval(exp, env):
 			return int(all([cmp[op[i]](x[i], x[i+1]) for i in range(len(op))]))
 		case ('val', x):
 			return pyeval(x) # zieh, zieh, zieh
-		case ('str', x):
-			return pyeval('0x' + pyeval(x).encode().hex())
 		case ('asg', op, x, *exp):
 			if x not in env: env[x] = 0
 			if op == '=':  env[x] = eval(*exp, env)
@@ -246,15 +238,16 @@ def eval(exp, env):
 		case ('if', con, exp, alt):
 			if eval(con, env): return eval(exp, env)
 			return eval(alt, env) if alt else NONE
-		case ('it', lo, up, t):
-			return Iterator(eval(lo, env), eval(up, env), t)
+		case ('it', lo, up, inc):
+			return Range(eval(lo, env), eval(up, env), inc)
 		case ('in', exp, it):
 			return int(eval(exp, env) in eval(it, env))
-		case ('for', i, it, exp):
+		case ('for', i, it, exp, *n):
 			it = eval(it, env)
+			it.step *= eval(n[0], env)
 			ret = NONE
-			while not it.empty():
-				env[i] = it.next()
+			for x in it:
+				env[i] = x
 				ret = eval(exp, env)
 			return ret
 		case ('while', cond, exp):
@@ -264,39 +257,35 @@ def eval(exp, env):
 			return ret
 		case _: raise Exception(f'exception in {exp}')
 
-class Iterator():
-	def __init__(self, lo, up, t, step=1):
-		self.lo = lo
-		self.up = up
-		self.t  = t
+class Range():
+	def __init__(self, low, upper, inclusive=(False, False), step=1):
+		if upper < low: step *= -1
+		self.bounds = low, upper
+		self.inclusive = inclusive
 		self.step = step
 
 	def __repr__(self):
-		match(self.t):
-			case 1: return f'[{self.lo},{self.up}]'
-			case 2: return f']{self.lo},{self.up}]'
-			case 3: return f'[{self.lo},{self.up}['
-			case 4: return f']{self.lo},{self.up}['
+		lo, up = self.bounds 
+		match(self.inclusive):
+			case (False, False): return f'[{lo},{up}]'
+			case (True,  False): return f']{lo},{up}]'
+			case (False, True ): return f'[{lo},{up}['
+			case (True,  True ): return f']{lo},{up}['
+
+	def __iter__(self):
+		lo, up = self.bounds 
+		if not self.inclusive[0]: lo += self.step
+		if self.inclusive[1]: up += self.step
+		return iter(range(lo, up, self.step))
 
 	def __contains__(self, x):
-		match(self.t):
-			case 1: return self.lo <  x <  self.up
-			case 2: return self.lo <= x <  self.up
-			case 3: return self.lo <  x <= self.up
-			case 4: return self.lo <= x <= self.up
+		(lo, up), inc = self.bounds, self.inclusive 
+		if self.step < 0:
+			lo, up = up, lo
+			inc = [inc[1], inc[0]]
+		return lo <= x <= up and (lo < x or inc[0]) and (x < up or inc[1])
 
-	def empty(self):
-		if self.t < 3:
-			return self.lo + self.step >= self.up
-		else:   return self.lo + self.step > self.up
-
-	def next(self):
-		if self.empty(): return NONE
-		self.lo += self.step
-		if self.t % 2 == 1:
-			return self.lo
-		else:   return self.lo - self.step
-
+	
 #   *----...-*
 #   |  MAIN  |
 #   *--------*
