@@ -11,16 +11,12 @@
 	f = 1;
 	¿1?
 	# Unicode Hell #
-		¿n>=0? ∀ i ∈ ]2,n[: f *= i..
-	, sonst wenn 0 gilt
+		¿n>=0? ∀ i ∈ ]2,n[: f *= i..,
+	sonst wenn 0 gilt
 	# lieber nicht #
-		Wenn n >= 0 gilt
-			Für i in ]2,n[, mach f *= i.
-		.
-	, else if 0 then
+		Wenn n >= 0 gilt für i in ]2,n[, mach f *= i..,
+	else if 0 then
 	# most normal #
-		if n >= 0 then
-			for i in ]2,n[, do f *= i.
-		.
+		if n >= 0 then for i in ]2,n[, do f *= i..
 	.; f
 }
