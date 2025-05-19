@@ -71,9 +71,9 @@ _t('IF',	r'[wW]enn|if|¿')
 _t('IN',	r'in|∈')
 _t('FOR',	r'[fF]ür|for|∀')
 _t('WHILE',	r'[sS]olange|while|⟳')
-_t('DO',	r',\s*(mach|do)|:')
-_t('THEN',	r'gilt|then|\?')
-_t('ELSE',	r',\s*(sonst|else)|\!')
+_t('DO',	r',\s*mach|do|:')
+_t('THEN',	r'gilt\s*,|then|\?')
+_t('ELSE',	r',\s*sonst|else|\!')
 t_END =		r'\.'
 
 def t_ID(t):
@@ -170,7 +170,7 @@ rule_func('for', 'exp : FOR ID IN it DO exp END', lambda p: ('for', p[2], p[4] ,
 rule_func('for', 'exp : FOR NUM ID IN it DO exp END', lambda p: ('for', p[3], p[5], p[7], ('val', p[2])))
 rule_func('while', 'exp : WHILE exp DO exp END', lambda p: ('while', p[2], p[4]))
 
-# load and echo
+# print and echo
 rule_op('SYS', fix='prefix')
 
 def p_error(p):
@@ -186,6 +186,7 @@ NONE=float('NaN')
 
 import math, cmath
 
+pyeval = eval
 ops = { '+'	: lambda x,y: x+y,
 	'-'	: lambda x,y: x-y,
 	'*'	: lambda x,y: x*y,
@@ -203,16 +204,18 @@ ops = { '+'	: lambda x,y: x+y,
 	'and'	: lambda x,y: int(bool(x) and bool(y)),
 	'not'	: lambda x: int(not bool(x)),
 	'echo'	: lambda x: print('\x1b[0;33m' + str(x) + '\x1b[0m') or x,
-	'load'	: lambda x: eval(parser.parse(open(x, 'r').read()), env) or NONE}
+	'load'	: lambda x: eval(parser.parse(open(x, 'r').read()), env) or NONE,
+    'eval'  : lambda x: pyeval(x),
+}
 
 cmp = { '<'	: lambda x,y: x <  y,
 	'<='	: lambda x,y: x <= y,
 	'=='	: lambda x,y: x == y,
 	'!='	: lambda x,y: x != y,
 	'>='	: lambda x,y: x >= y,
-	'>'	: lambda x,y: x >  y,}
+	'>'	: lambda x,y: x >  y,
+}
 
-pyeval = eval
 def eval(exp, env):
 	match(exp):
 		case ('op', op, *args):
@@ -265,7 +268,7 @@ class Range():
 		self.step = step
 
 	def __repr__(self):
-		lo, up = self.bounds 
+		lo, up = self.bounds
 		match(self.inclusive):
 			case (False, False): return f'[{lo},{up}]'
 			case (True,  False): return f']{lo},{up}]'
@@ -273,13 +276,13 @@ class Range():
 			case (True,  True ): return f']{lo},{up}['
 
 	def __iter__(self):
-		lo, up = self.bounds 
+		lo, up = self.bounds
 		if not self.inclusive[0]: lo += self.step
 		if self.inclusive[1]: up += self.step
 		return iter(range(lo, up, self.step))
 
 	def __contains__(self, x):
-		(lo, up), inc = self.bounds, self.inclusive 
+		(lo, up), inc = self.bounds, self.inclusive
 		if self.step < 0:
 			lo, up = up, lo
 			inc = [inc[1], inc[0]]
@@ -331,4 +334,4 @@ if __name__ == '__main__':
 			if result: print(eval(result, env))
 		except EOFError: exit()
 		except Exception as e: print('\x1b[0;31m' + repr(e) + '\x1b[0m')
-		except KeyboardInterrupt as e: print('\n\x1b[0;31m' + 'KeyboardInterrupt' + '\x1b[0m')
+		except KeyboardInterrupt as e: print('\n\x1b[0;31m' + repr(e) + '\x1b[0m')

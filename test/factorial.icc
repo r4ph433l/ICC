@@ -15,8 +15,8 @@
 	sonst wenn 0 gilt
 	# lieber nicht #
 		Wenn n >= 0 gilt für i in ]2,n[, mach f *= i..,
-	else if 0 then
+	else if 0 then 
 	# most normal #
 		if n >= 0 then for i in ]2,n[, do f *= i..
-	.; f
+	.; f 
 }
