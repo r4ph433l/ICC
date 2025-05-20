@@ -1,0 +1,368 @@
+#!/bin/python
+verbose=False
+
+#   *----------------...-*
+#   |  P_RULE GENERATOR  |
+#   | ------------------ |
+#   |  yoinked from Tim  |
+#   |  and modified      |
+#   *--------------------*
+
+def generator():
+    count = {}
+    def gen(name):
+        nonlocal count
+        if name not in count: count[name] = 0
+        else: count[name] += 1
+        return name + str(count[name])
+    return gen
+
+unique = generator()
+module = __import__(__name__)
+
+def rule_func(name, rule, func):
+    def f(p):
+        if verbose: print(rule, '<-', *p)
+        p[0] = func(p)
+    f.__doc__ = rule
+    setattr(module, unique(f'p_{name}'), f)
+
+def rule_node(tag, rule, *children):
+    def f(p):
+        c = (p[child] if isinstance(child, int) else child for child in children)
+        return (tag, *c)
+    rule_func(tag, rule, f)
+
+def rule_op(op, fix='infix', prec=None, use_val=True):
+    prec = f'%prec {prec}' if prec else ''
+    match(fix):
+        case 'infix' : rule_func('binop', f"exp : exp {op} exp {prec}", lambda p: ('op', p[2] if use_val else op, p[1], p[3]))
+        case 'prefix': rule_func('preop', f"exp : {op} exp {prec}", lambda p: ('op', p[1] if use_val else op, p[2]))
+        case 'suffix': rule_func('sufop', f"exp : exp {op} {prec}", lambda p: ('op', p[2] if use_val else op, p[1]))
+        case _: raise Exception("that ain't fixing nothing")
+
+def rule_list(name, elem, sep, trailing_seperator='disallow'):
+    rule_func(name, f"{name} : {elem} {sep} {name}", lambda p: [p[1], *p[3]])
+    if trailing_seperator != 'dissallow':
+        rule_func(name, f"{name} : {elem} {sep}", lambda p: [p[1]])
+    if trailing_seperator != 'force':
+        rule_func(name, f"{name} : {elem}", lambda p: [p[1]])
+
+def _t(name, reg):
+    def f(p):
+        return p
+    f.__doc__ = reg
+    setattr(module, f't_{name}', f)
+
+#   *-----...-*
+#   |  LEXER  |
+#   *---------*
+
+from ply.lex import lex
+
+literals = r'+-*(){};[],:'
+restoken = ['MOD', 'OR', 'XOR', 'AND', 'NOT', 'IF', 'IN', 'ELSE', 'FOR', 'WHILE', 'ECHO', 'LOAD', 'EVAL']
+engwords = {s.lower(): s for s in restoken}
+reserved = engwords.copy()
+tokens = ['NUM', 'STR', 'ID', 'ASG', 'USG', 'DIV', 'POW', 'CMP', 'END'] + restoken
+
+def t_ID(t):
+    r'[a-zA-Z\u00a0-\U0001f645_][a-zA-Z\u00a0-\U0001f645_0-9]*'
+    t.type = reserved.get(t.value, 'ID')
+    return t
+
+t_NUM = r'((0|[1-9][0-9]*)\.([0-9]*[1-9]|0)|0b0|0b1[0|1]*|0x0|0x[1-9a-fA-F][0-9a-fA-F]*|0|[1-9][0-9]*)j?'
+t_STR = r'".*"'
+t_ASG = r'='
+t_USG = r'(\+\+|--)((?!' + t_NUM + '|' + t_ID.__doc__ + ')|(?=imag))' # edge cases: ['1++1', '1++a', 'a++imag']
+t_DIV = r'[|\/\\]'
+t_POW = r'\*\*'
+t_CMP = r'[!=<>]=|[<>]'
+t_END = r'\.'
+
+t_ignore = ' \t'
+def t_comment(t):
+    r'\#[^#]*\#'
+    t.lexer.lineno += t.value.count(r'\n')
+
+def t_newline(t):
+    r'\n+'
+    t.lexer.lineno += len(t.value)
+
+def t_error(t):
+    raise SyntaxError(f'illegal token {t.value}')
+
+lexer = lex()
+
+#   *------...-*
+#   |  PARSER  |
+#   *----------*
+
+from ply.yacc import yacc
+
+precedence = [    ['left', 'ID'],
+        ['right', 'ASG', 'SYS', 'IF'],
+        ['left', 'OR'], ['left', 'XOR'], ['left', 'AND'],
+        ['left', 'CLS'], ['left', 'CMP'],
+        ['left', '+', '-'],
+        ['left', '*', 'DIV', 'MOD'],
+        ['right', 'POW'],
+        ['left', 'NOT'],
+        ['right', 'USG'],
+]
+
+# simples
+rule_node('id',  'exp : ID', 1)
+rule_node('val', 'exp : NUM', 1)
+rule_node('val', 'exp : STR', 1)
+
+# operators
+for binop in ["'+'", "'-'", "'*'", 'DIV']:
+    rule_op(binop)
+    rule_func('op', f'exp : ID {binop} exp', lambda p: ('op', p[2], ('id', p[1]), p[3]))
+    rule_func('asg', f'exp : ID {binop} ASG exp', lambda p: ('asg', p[3], p[1], ('op', p[2], ('id', p[1]), p[4])))
+for binop in ['MOD', 'POW', 'OR', 'XOR', 'AND']:
+    rule_op(binop, use_val=False)
+    rule_func('op', f'exp : ID {binop} exp', lambda p: ('op', binop, ('id', p[1]), p[3]))
+    rule_func('asg', f'exp : ID {binop} ASG exp', lambda p: ('asg', p[3], p[1], ('op', binop, ('id', p[1]), p[4])))
+
+for unpre in ["'+'", "'-'"]:
+    rule_func('op', f'exp : {unpre} exp', lambda p: ('op', 'u'+p[1], p[2]))
+rule_op('NOT',  fix='prefix')
+
+# groups
+rule_func('grp', r"exp : '(' exp ')'", lambda p: p[2])
+
+# sequences
+rule_list('seq', 'exp', "';'", trailing_seperator='')
+rule_func('seq', "exp : '{' seq '}'", lambda p: ('seq', *p[2]))
+
+# assign, increment & decrement
+rule_node('asg', 'exp : ID ASG exp', 2, 1, 3)
+rule_node('asg', 'exp : ID USG', 2, 1)
+
+# comperator lists
+# only work if compare operators all have same precedence (idky)
+rule_func('cmp', 'cmp : exp CMP exp', lambda p: [[p[2]], [p[1], p[3]]])
+rule_func('cmp', 'cmp : cmp CMP exp', lambda p: [p[1][0] + [p[2]], p[1][1] + [p[3]]])
+rule_func('cmp', 'exp : cmp %prec CLS', lambda p: ('cmp', *p[1]))
+
+# control structures
+rule_func('ctl', "ifc : IF exp ':' exp", lambda p: ('if', p[2], p[4], None))
+rule_func('ctl', "ifc : IF exp ':' exp ELSE exp", lambda p: ('if', p[2], p[4], p[6]))
+rule_func('ctl', "ifc : IF exp ':' exp ELSE ifc %prec IF", lambda p: ('if', p[2], p[4], p[6]))
+rule_func('ctl', 'exp : ifc END', lambda p: p[1])
+
+# iterator
+rule_func('it', "it : '[' exp ',' exp ']'", lambda p: ('it', p[2], p[4], (True,  True )))
+rule_func('it', "it : ']' exp ',' exp ']'", lambda p: ('it', p[2], p[4], (False, True )))
+rule_func('it', "it : '[' exp ',' exp '['", lambda p: ('it', p[2], p[4], (True, False)))
+rule_func('it', "it : ']' exp ',' exp '['", lambda p: ('it', p[2], p[4], (False, False)))
+rule_func('it', 'exp : exp IN it', lambda p: ('in', p[1], p[3]))
+
+# loops
+rule_func('for', "exp : FOR ID IN it ':' exp END", lambda p: ('for', p[2], p[4] ,p[6], ('val', '1')))
+rule_func('for', "exp : FOR NUM ID IN it ':' exp END", lambda p: ('for', p[3], p[5], p[7], ('val', p[2])))
+rule_func('while', "exp : WHILE exp ':' exp END", lambda p: ('while', p[2], p[4]))
+
+# print and echo
+for sys in ['ECHO', 'LOAD', 'EVAL']:
+    rule_op(sys, fix='prefix', prec='SYS', use_val=False)
+
+def p_error(p):
+    raise SyntaxError(f'Syntax error in {p}')
+
+parser = yacc(start='exp')
+
+#   *-----------...-*
+#   |  INTERPRETER  |
+#   *---------------*
+
+NONE=float('NaN')
+
+import math, cmath
+
+pyeval = eval
+ops = { '+'    : lambda x,y: x+y,
+    '-'    : lambda x,y: x-y,
+    '*'    : lambda x,y: x*y,
+    '|'    : lambda x,y: x/y,
+    '/'    : lambda x,y: math.ceil(x/y),
+    '\\'    : lambda x,y: math.floor(x/y),
+    'MOD'    : lambda x,y: x % y,
+    '**'    : lambda x,y: x**y,
+    'u+'    : lambda x: abs(x),
+    'u-'    : lambda x: -x,
+    'OR'    : lambda x,y: int(bool(x) or  bool(y)),
+    'XOR'    : lambda x,y: int(bool(x) ==  bool(y)),
+    'AND'    : lambda x,y: int(bool(x) and bool(y)),
+    'NOT'    : lambda x: int(not bool(x)),
+    'ECHO'    : lambda x: print('\x1b[0;33m' + str(x) + '\x1b[0m') or x,
+    'LOAD'    : lambda x: load(x),
+    'EVAL'  : lambda x: pyeval(x),
+}
+
+def load(path):
+    global reserved
+    tmp, reserved = reserved.copy(), engwords.copy()
+    ret = NONE
+    with open(path, 'r') as file:
+        file = file.read()
+        if file.startswith('#?'):
+            lanbang, file = file.split('\n', 1)
+            language(lanbang[2:])
+        ret = eval(parser.parse(file), env) 
+    reserved = tmp
+    return ret
+
+cmp = { '<'    : lambda x,y: x <  y,
+    '<='    : lambda x,y: x <= y,
+    '=='    : lambda x,y: x == y,
+    '!='    : lambda x,y: x != y,
+    '>='    : lambda x,y: x >= y,
+    '>'    : lambda x,y: x >  y,
+}
+
+def eval(exp, env):
+    match(exp):
+        case ('op', op, *args):
+            return ops[op](*[eval(x, env) for x in args])
+        case ('cmp', op, x):
+            x = [eval(xi, env) for xi in x]
+            return int(all([cmp[op[i]](x[i], x[i+1]) for i in range(len(op))]))
+        case ('val', x):
+            return pyeval(x) # zieh, zieh, zieh
+        case ('asg', op, x, *exp):
+            if x not in env: env[x] = 0
+            if op == '=':  env[x] = eval(*exp, env)
+            if op == '++': env[x]  += 1
+            if op == '--': env[x]  -= 1
+            return env[x]
+        case ('id', x):
+            if x not in env: env[x] = 0
+            return env[x]
+        case ('seq', *exp, ret):
+            for e in exp:
+                eval(e, env)
+            return eval(ret, env)
+        case ('if', con, exp, alt):
+            if eval(con, env): return eval(exp, env)
+            return eval(alt, env) if alt else NONE
+        case ('it', lo, up, inc):
+            return Range(eval(lo, env), eval(up, env), inc)
+        case ('in', exp, it):
+            return int(eval(exp, env) in eval(it, env))
+        case ('for', i, it, exp, *n):
+            it = eval(it, env)
+            it.step *= eval(n[0], env)
+            ret = NONE
+            for x in it:
+                env[i] = x
+                ret = eval(exp, env)
+            return ret
+        case ('while', cond, exp):
+            ret = NONE
+            while eval(cond, env):
+                ret = eval(exp, env)
+            return ret
+        case _: raise Exception(f'exception in {exp}')
+
+class Range():
+    def __init__(self, low, upper, inclusive=(False, False), step=1):
+        if upper < low: step *= -1
+        self.bounds = low, upper
+        self.inclusive = inclusive
+        self.step = step
+
+    def __repr__(self):
+        lo, up = self.bounds
+        match(self.inclusive):
+            case (True,  True ): return f'[{lo},{up}]'
+            case (False, True ): return f']{lo},{up}]'
+            case (True,  False): return f'[{lo},{up}['
+            case (False, False): return f']{lo},{up}['
+
+    def __iter__(self):
+        lo, up = self.bounds
+        if not self.inclusive[0]: lo += self.step
+        if self.inclusive[1]: up += self.step
+        return iter(range(lo, up, self.step))
+
+    def __contains__(self, x):
+        (lo, up), inc = self.bounds, self.inclusive
+        if self.step < 0:
+            lo, up = up, lo
+            inc = [inc[1], inc[0]]
+        return lo <= x <= up and (lo < x or inc[0]) and (x < up or inc[1])
+
+
+def language(s):
+    has_run = False
+    if not has_run: from deep_translator import GoogleTranslator; has_run = True
+    global reserved
+    match (s):
+        case 'unicode': reserved = {'?': 'IF', '∈': 'IN', '∀': 'FOR', '⟳': 'WHILE', '!': 'ELSE'}
+        case _:
+            gt = GoogleTranslator(source='auto', target=s)
+            for token in restoken:
+                reserved[gt.translate(token).replace(' ', '_').lower()] = token
+            if verbose: print(tres)
+    return 1
+
+#   *----...-*
+#   |  MAIN  |
+#   *--------*
+
+if __name__ == '__main__':
+    import os, readline, argparse, sys, traceback
+
+    argp = argparse.ArgumentParser(prog=sys.argv[0],
+        description='ICC25 Interpreter\nInterpretation und Compilation von Computerprogrammen 2025\nHochschule Bonn-Rhein-Sieg',
+        epilog='󱤹 Raphael Schönefeld', formatter_class=argparse.RawTextHelpFormatter)
+    argp.add_argument('-i', '--input', help='ICC25 source code')
+    argp.add_argument('-l', '--language', help='powered by deep-translator')
+    argp.add_argument('-sl', '--supported-languages', action='store_true')
+    argp.add_argument('-v', '--verbose', action='store_true')
+    args = argp.parse_args()
+    verbose = args.verbose
+
+    if args.supported_languages:
+        try:
+            from deep_translator import GoogleTranslator
+            for lang in GoogleTranslator().get_supported_languages(): print(lang)
+        except:
+            print("try: pip install deep-translator")
+        sys.exit(0)
+    
+    env = {}
+    if args.input:
+        print(load(args.input))
+        sys.exit(0)
+
+    if args.language:
+        language(args.language)
+        
+    hist = os.path.join(os.path.expanduser("~"), ".icc_history")
+    try:
+        readline.read_history_file(hist)
+        readline.set_history_length(1000)
+    except FileNotFoundError:
+        pass
+
+    def exit():
+        print()
+        if not os.path.exists(hist): os.mknod(hist)
+        readline.write_history_file(hist)
+        sys.exit(0)
+
+    while True:
+        try:
+            src = input('\x1b[0;32m' + '>>> ' + '\x1b[0m')
+            while src.count('#') % 2 != 0 or src.count('{') != src.count('}'):
+                src += '\n' + input('\x1b[0;32m' + '... ' + '\x1b[0m')
+            result = parser.parse(src)
+            if verbose: print(result)
+            if result: print(eval(result, env))
+        except EOFError: exit()
+        except Exception as e: print('\x1b[0;31m' + (traceback.format_exc() if verbose else repr(e) + '\n') + '\x1b[0m', end='')
+        except KeyboardInterrupt as e: print('\n\x1b[0;31m' + repr(e) + '\x1b[0m')
