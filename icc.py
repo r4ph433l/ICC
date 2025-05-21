@@ -41,12 +41,13 @@ def rule_op(op, fix='infix', prec=None, use_val=True):
         case 'suffix': rule_func('sufop', f"exp : exp {op} {prec}", lambda p: ('op', p[2] if use_val else op, p[1]))
         case _: raise Exception("that ain't fixing nothing")
 
-def rule_list(name, elem, sep, trailing_seperator='disallow'):
-    rule_func(name, f"{name} : {elem} {sep} {name}", lambda p: [p[1], *p[3]])
+def rule_list(name, elem, sep, prec=None, trailing_seperator='disallow'):
+    prec = f'%prec {prec}' if prec else ''
+    rule_func(name, f"{name} : {elem} {sep} {name} {prec}", lambda p: [p[1], *p[3]])
     if trailing_seperator != 'dissallow':
-        rule_func(name, f"{name} : {elem} {sep}", lambda p: [p[1]])
+        rule_func(name, f"{name} : {elem} {sep} {prec}", lambda p: [p[1]])
     if trailing_seperator != 'force':
-        rule_func(name, f"{name} : {elem}", lambda p: [p[1]])
+        rule_func(name, f"{name} : {elem} {prec}", lambda p: [p[1]])
 
 def _t(name, reg):
     def f(p):
@@ -64,7 +65,7 @@ literals = r'+-*(){};[],:'
 restoken = ['MOD', 'OR', 'XOR', 'AND', 'NOT', 'IF', 'IN', 'ELSE', 'FOR', 'WHILE', 'ECHO', 'LOAD', 'EVAL']
 engwords = {s.lower(): s for s in restoken}
 reserved = engwords.copy()
-tokens = ['NUM', 'STR', 'ID', 'ASG', 'USG', 'DIV', 'POW', 'CMP', 'END'] + restoken
+tokens = ['NUM', 'STR', 'ID', 'ASG', 'USG', 'DIV', 'POW', 'CMP', 'END', 'TO'] + restoken
 
 def t_ID(t):
     r'[a-zA-Z\u00a0-\U0001f645_][a-zA-Z\u00a0-\U0001f645_0-9]*'
@@ -79,6 +80,7 @@ t_DIV = r'[|\/\\]'
 t_POW = r'\*\*'
 t_CMP = r'[!=<>]=|[<>]'
 t_END = r'\.'
+t_TO  = r'->'
 
 t_ignore = ' \t'
 def t_comment(t):
@@ -100,8 +102,11 @@ lexer = lex()
 
 from ply.yacc import yacc
 
-precedence = [    ['left', 'ID'],
+precedence = [
+        ['left', 'ID'],
         ['right', 'ASG', 'SYS', 'IF'],
+        ['right', 'TO'],
+        ['left', 'ARR'],['left', ','],
         ['left', 'OR'], ['left', 'XOR'], ['left', 'AND'],
         ['left', 'CLS'], ['left', 'CMP'],
         ['left', '+', '-'],
@@ -109,6 +114,7 @@ precedence = [    ['left', 'ID'],
         ['right', 'POW'],
         ['left', 'NOT'],
         ['right', 'USG'],
+        ['left', '['],
 ]
 
 # simples
@@ -147,6 +153,18 @@ rule_func('cmp', 'cmp : exp CMP exp', lambda p: [[p[2]], [p[1], p[3]]])
 rule_func('cmp', 'cmp : cmp CMP exp', lambda p: [p[1][0] + [p[2]], p[1][1] + [p[3]]])
 rule_func('cmp', 'exp : cmp %prec CLS', lambda p: ('cmp', *p[1]))
 
+# arrays
+rule_func('arr', "arr : exp ',' exp", lambda p: [p[1], p[3]])
+rule_func('arr', "arr : arr ',' exp", lambda p: [*p[1], p[3]])
+rule_func('arr', "exp : arr %prec ARR", lambda p: ('arr', *p[1]))
+rule_func('arr', "exp : '(' ')'", lambda p: ('arr',))
+rule_func('arr', "exp : exp ','", lambda p: ('arr', p[1]))
+rule_func('arr', "exp : exp '[' exp ']'", lambda p: ('aget', p[1], p[3]))
+
+# lambda, functions and calls
+rule_func('fun', 'exp : exp TO exp', lambda p: ('lambda', p[1], p[3]))
+rule_func('fun', "exp : exp '(' exp ')'", lambda p: ('call', p[1], p[3]))
+
 # control structures
 rule_func('ctl', "ifc : IF exp ':' exp", lambda p: ('if', p[2], p[4], None))
 rule_func('ctl', "ifc : IF exp ':' exp ELSE exp", lambda p: ('if', p[2], p[4], p[6]))
@@ -154,14 +172,15 @@ rule_func('ctl', "ifc : IF exp ':' exp ELSE ifc %prec IF", lambda p: ('if', p[2]
 rule_func('ctl', 'exp : ifc END', lambda p: p[1])
 
 # iterator
-rule_func('it', "it : '[' exp ',' exp ']'", lambda p: ('it', p[2], p[4], (True,  True )))
-rule_func('it', "it : ']' exp ',' exp ']'", lambda p: ('it', p[2], p[4], (False, True )))
-rule_func('it', "it : '[' exp ',' exp '['", lambda p: ('it', p[2], p[4], (True, False)))
-rule_func('it', "it : ']' exp ',' exp '['", lambda p: ('it', p[2], p[4], (False, False)))
-rule_func('it', 'exp : exp IN it', lambda p: ('in', p[1], p[3]))
+rule_func('it', "it : '[' exp ',' exp ']'", lambda p: ('range', p[2], p[4], (True,  True )))
+rule_func('it', "it : ']' exp ',' exp ']'", lambda p: ('range', p[2], p[4], (False, True )))
+rule_func('it', "it : '[' exp ',' exp '['", lambda p: ('range', p[2], p[4], (True,  False)))
+rule_func('it', "it : ']' exp ',' exp '['", lambda p: ('range', p[2], p[4], (False, False)))
+rule_func('it', "exp : it", lambda p: p[1])
+rule_func('itv', 'exp : exp IN it', lambda p: ('in', p[1], p[3]))
 
 # loops
-rule_func('for', "exp : FOR ID IN it ':' exp END", lambda p: ('for', p[2], p[4] ,p[6], ('val', '1')))
+rule_func('for', "exp : FOR ID IN exp ':' exp END", lambda p: ('for', p[2], p[4] ,p[6]))
 rule_func('for', "exp : FOR NUM ID IN it ':' exp END", lambda p: ('for', p[3], p[5], p[7], ('val', p[2])))
 rule_func('while', "exp : WHILE exp ':' exp END", lambda p: ('while', p[2], p[4]))
 
@@ -183,22 +202,23 @@ NONE=float('NaN')
 import math, cmath
 
 pyeval = eval
-ops = { '+'    : lambda x,y: x+y,
-    '-'    : lambda x,y: x-y,
-    '*'    : lambda x,y: x*y,
-    '|'    : lambda x,y: x/y,
-    '/'    : lambda x,y: math.ceil(x/y),
+ops = { 
+    '+' : lambda x,y: x+y,
+    '-'     : lambda x,y: x-y,
+    '*'     : lambda x,y: x*y,
+    '|'     : lambda x,y: x/y,
+    '/'     : lambda x,y: math.ceil(x/y),
     '\\'    : lambda x,y: math.floor(x/y),
-    'MOD'    : lambda x,y: x % y,
+    'MOD'   : lambda x,y: x % y,
     '**'    : lambda x,y: x**y,
     'u+'    : lambda x: abs(x),
     'u-'    : lambda x: -x,
     'OR'    : lambda x,y: int(bool(x) or  bool(y)),
-    'XOR'    : lambda x,y: int(bool(x) ==  bool(y)),
-    'AND'    : lambda x,y: int(bool(x) and bool(y)),
-    'NOT'    : lambda x: int(not bool(x)),
-    'ECHO'    : lambda x: print('\x1b[0;33m' + str(x) + '\x1b[0m') or x,
-    'LOAD'    : lambda x: load(x),
+    'XOR'   : lambda x,y: int(bool(x) ==  bool(y)),
+    'AND'   : lambda x,y: int(bool(x) and bool(y)),
+    'NOT'   : lambda x: int(not bool(x)),
+    'ECHO'  : lambda x: print('\x1b[0;33m' + str(x) + '\x1b[0m') or x,
+    'LOAD'  : lambda x: load(x),
     'EVAL'  : lambda x: pyeval(x),
 }
 
@@ -215,12 +235,12 @@ def load(path):
     reserved = tmp
     return ret
 
-cmp = { '<'    : lambda x,y: x <  y,
-    '<='    : lambda x,y: x <= y,
-    '=='    : lambda x,y: x == y,
-    '!='    : lambda x,y: x != y,
-    '>='    : lambda x,y: x >= y,
-    '>'    : lambda x,y: x >  y,
+cmp = { '<'     : lambda x,y: x <  y,
+        '<='    : lambda x,y: x <= y,
+        '=='    : lambda x,y: x == y,
+        '!='    : lambda x,y: x != y,
+        '>='    : lambda x,y: x >= y,
+        '>'     : lambda x,y: x >  y,
 }
 
 def eval(exp, env):
@@ -232,14 +252,18 @@ def eval(exp, env):
             return int(all([cmp[op[i]](x[i], x[i+1]) for i in range(len(op))]))
         case ('val', x):
             return pyeval(x) # zieh, zieh, zieh
+        case ('arr', *x):
+            return Array([eval(xi, env) for xi in x])
+        case ('aget', a, i):
+            i = eval(i, env)
+            a = eval(a, env)
+            return a[i]
         case ('asg', op, x, *exp):
-            if x not in env: env[x] = 0
             if op == '=':  env[x] = eval(*exp, env)
             if op == '++': env[x]  += 1
             if op == '--': env[x]  -= 1
             return env[x]
         case ('id', x):
-            if x not in env: env[x] = 0
             return env[x]
         case ('seq', *exp, ret):
             for e in exp:
@@ -248,13 +272,14 @@ def eval(exp, env):
         case ('if', con, exp, alt):
             if eval(con, env): return eval(exp, env)
             return eval(alt, env) if alt else NONE
-        case ('it', lo, up, inc):
+        case ('range', lo, up, inc):
             return Range(eval(lo, env), eval(up, env), inc)
         case ('in', exp, it):
             return int(eval(exp, env) in eval(it, env))
         case ('for', i, it, exp, *n):
             it = eval(it, env)
-            it.step *= eval(n[0], env)
+            if not hasattr(it, '__iter__'): raise Exception(f'{it} is not iterable')
+            if len(n) > 0: it.step *= eval(n[0], env)
             ret = NONE
             for x in it:
                 env[i] = x
@@ -265,7 +290,59 @@ def eval(exp, env):
             while eval(cond, env):
                 ret = eval(exp, env)
             return ret
+        case ('lambda', arg, fun):
+            t, *arg = arg
+            if t == 'arr':
+                for i in range(len(arg)):
+                    if arg[i][0] != 'id': raise Exception(f'arg {arg[i]} is illegal')
+                    arg[i] = arg[i][1]
+            elif t != 'id': raise Exception(f'arg {arg} is illegal')
+            return (env, arg, fun)
+        case ('call', fun, arg):
+            fun = eval(fun, env)
+            env_f = fun[0].fork()
+            arg = eval(arg, env)
+            if not isinstance(arg, Array):
+                arg = [arg]
+            for x in fun[1]:
+                env_f[x] = arg.pop(0)
+            return eval(fun[2], env_f)
         case _: raise Exception(f'exception in {exp}')
+
+class Environment:
+    def __init__(self, parent=None):
+        self.parent = parent
+        self.vars = {}
+
+    def __repr__(self):
+        s = repr(self.vars)
+        if self.parent:
+            return repr(self.parent) + '+' + s
+        return s
+
+    def fork(self):
+        return Environment(self)
+
+    def __contains__(self, name):
+        if name in self.vars:
+            return True
+        elif self.parent is None:
+            return False
+        else: return name in self.parent
+
+    def __getitem__(self, name):
+        if name in self.vars:
+            return self.vars[name]
+        elif self.parent is None:
+            self.vars[name] = 0
+            return 0
+        else: return self.parent[name]
+
+    def __setitem__(self, name, value):
+        if self.parent is not None and name in self.parent:
+            self.parent[name] = value
+        else: self.vars[name] = value
+
 
 class Range():
     def __init__(self, low, upper, inclusive=(False, False), step=1):
@@ -295,13 +372,19 @@ class Range():
             inc = [inc[1], inc[0]]
         return lo <= x <= up and (lo < x or inc[0]) and (x < up or inc[1])
 
+class Array(list):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+    def __repr__(self):
+        return '(' + super().__repr__()[1:-1] + ')'
 
 def language(s):
     has_run = False
     if not has_run: from deep_translator import GoogleTranslator; has_run = True
     global reserved
     match (s):
-        case 'unicode': reserved = {'?': 'IF', '∈': 'IN', '∀': 'FOR', '⟳': 'WHILE', '!': 'ELSE'}
+        case 'unicode': reserved |= {'≡':'MOD', '∨':'OR', '⊻':'XOR', '∧':'AND', '¬':'NOT', '→':'IF', '∴':'ELSE', '∀':'FOR', '∈':'IN', '⟲':'WHILE', '♫':'ECHO', '⊃':'LOAD', '⊢':'EVAL'}
         case _:
             gt = GoogleTranslator(source='auto', target=s)
             for token in restoken:
@@ -314,7 +397,7 @@ def language(s):
 #   *--------*
 
 if __name__ == '__main__':
-    import os, readline, argparse, sys, traceback
+    import os, readline, argparse, sys, traceback, re
 
     argp = argparse.ArgumentParser(prog=sys.argv[0],
         description='ICC25 Interpreter\nInterpretation und Compilation von Computerprogrammen 2025\nHochschule Bonn-Rhein-Sieg',
@@ -334,7 +417,7 @@ if __name__ == '__main__':
             print("try: pip install deep-translator")
         sys.exit(0)
     
-    env = {}
+    env = Environment()
     if args.input:
         print(load(args.input))
         sys.exit(0)
@@ -358,11 +441,15 @@ if __name__ == '__main__':
     while True:
         try:
             src = input('\x1b[0;32m' + '>>> ' + '\x1b[0m')
-            while src.count('#') % 2 != 0 or src.count('{') != src.count('}'):
+            while src.count('#') % 2 != 0 or src.count('{') != src.count('}'):# or src.count(':') > src.count('.') - len(re.findall(r'\b\d+\.\d+\b', src)):
                 src += '\n' + input('\x1b[0;32m' + '... ' + '\x1b[0m')
+            if src == '': continue
+            if src.strip() == 'help':
+                print('\n'.join([f'{value:5} = {key}' for key, value in reserved.items() if key not in engwords.keys()]))
+                continue
             result = parser.parse(src)
             if verbose: print(result)
-            if result: print(eval(result, env))
+            if result: val = eval(result, env); print('(...)' if isinstance(val, tuple) and not verbose else val)
         except EOFError: exit()
         except Exception as e: print('\x1b[0;31m' + (traceback.format_exc() if verbose else repr(e) + '\n') + '\x1b[0m', end='')
         except KeyboardInterrupt as e: print('\n\x1b[0;31m' + repr(e) + '\x1b[0m')
