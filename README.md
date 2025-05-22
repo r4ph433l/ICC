@@ -1,4 +1,3 @@
-$\usepackage{ stmaryrd }$
 # Values
 | name | regex | example |
 | --- | --- | --- |
@@ -10,6 +9,5 @@ $\usepackage{ stmaryrd }$
 # Operator
 | operator | usage | semantic |
 | --- | --- | --- |
-| `+` | `a + b` | $\left[[ a+b \right]]_\rho(\sigma) = \left[[a\right]]_\rho(\sigma) + \left[[b\right]]_\rho(\sigma)$ |
+| `+` | `a + b` | $[ a+b ]_\rho(\sigma) = [a](\sigma) + [b]_\rho(\sigma)$ |
 
-$\llbr$
