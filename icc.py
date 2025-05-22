@@ -155,7 +155,6 @@ rule_node('asg', 'exp : ID ASG exp', 2, 1, 3)
 rule_node('asg', 'exp : ID USG', 2, 1)
 rule_func('asg', "exp : ID '[' exp ']' ASG exp", lambda p: ('a_asg', p[5], p[1], p[3], p[6]))
 rule_func('asg', "exp : ID '[' exp ']' USG", lambda p: ('a_asg', p[5], p[1], p[3]))
-# TODO assign to aget
 
 # comperator lists
 # only work if compare operators all have same precedence (idky)
@@ -175,8 +174,8 @@ rule_func('arr', 'exp : agt', lambda p: p[1])
 # lambda, functions and calls
 rule_func('fun', 'exp : exp TO exp', lambda p: ('lambda', p[1], p[3], False))
 rule_func('fun', 'exp : exp STK TO exp', lambda p: ('lambda', p[1], p[4], True))
-rule_func('fun', "exp : ID '(' exp ')'", lambda p: ('call', p[1], p[3]))
-rule_func('fun', "exp : ID '(' ')'", lambda p: ('call', p[1], ('arr',)))
+rule_func('fun', "exp : exp '(' exp ')'", lambda p: ('call', p[1], p[3]))
+rule_func('fun', "exp : exp '(' ')'", lambda p: ('call', p[1], ('arr',)))
 rule_func('stk', "exp : STK exp", lambda p: ('stk', p[2]))
 
 # control structures
@@ -323,7 +322,7 @@ def eval(exp, env):
             elif t != 'id': raise Exception(f'arg {arg} is illegal')
             return (env, arg, fun, stk)
         case ('call', fun, arg):
-            fun = env[fun]
+            fun = eval(fun, env)
             env_f = fun[0].fork()
             arg_f = fun[1].copy()
             arg = eval(arg, env)
@@ -333,9 +332,12 @@ def eval(exp, env):
                 env_f.vars |= arg.dic
                 for a in arg.dic.keys():
                     arg_f.remove(a)
-            for x in arg_f:
-                env_f[x] = arg.pop(0)
-            if len(arg) > 0 and not fun[3]:
+            print(arg_f)
+            while arg_f and arg:
+                env_f[arg_f.pop(0)] = arg.pop(0)
+            if arg_f:
+                return (env_f, arg_f, fun[2], fun[3])
+            if arg and not fun[3]:
                 raise Exception(f'too many arguments')
             for x in arg:
                 env_f.stk.append(x)
@@ -508,7 +510,7 @@ if __name__ == '__main__':
             if verbose: print(result)
             if result:
                 val = eval(result, env)
-                if isinstance(val, tuple): val = '(...)'
+                if isinstance(val, tuple) and not verbose: val = '(...)'
                 print('\x1b[0;34m' + str(val) + '\x1b[0m')
         except EOFError: exit()
         except Exception as e: print('\x1b[0;31m' + (traceback.format_exc() if verbose else repr(e) + '\n') + '\x1b[0m', end='')
