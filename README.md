@@ -6,6 +6,7 @@
 | Binary | `0b(0\|1[0-1]*)` | `0b0`, `0b10011`, `0b1111100111` |
 | Float | `0\|[1-9][0-9]*\.[0-9]*[1-9]\|0` | `0.0`, `0.13`, `99.9` |
 | Complex | `<any of the above>j` | `0j`, `0x13j`, `99.9j` |
+| String | `".*"` | `"hi"` |
 # Lists
 lists are just comma separated expressions e.g. `1,2,3` -> `(1,2,3)`
 
@@ -90,6 +91,7 @@ lambda functions also introduce lexical scoping
 | `load` | `load "test.icc"` | executes code in given file |
 | `eval` | `eval "print('hi')"` | executes code in python |
 
+little trick: if you are on linux you can just `load "/dev/stdin"` to input data
 # Syntax translation
 dont use it
 
