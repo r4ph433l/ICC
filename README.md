@@ -39,7 +39,9 @@ can be used in a for loop
 | `/` | `a / b` | `ceil(a / b)` |
 | `\` | `a \ b` | `floor(a / b)` |
 | `**` | `a ** b` | |
+
 | operator | alternative | usage | python |
+| --- | --- | --- | --- |
 | `mod` | `≡` | `a mod b` | `a % b` |
 | `and` | `∧` | `a and b` | `int(bool(a) and bool(b))` |
 | `or`  | `∨` | `a or b` | `int(bool(a) or bool(b))` |
