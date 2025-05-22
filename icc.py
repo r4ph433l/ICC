@@ -229,7 +229,7 @@ ops = {
     'NOT'   : lambda x: int(not bool(x)),
     'ECHO'  : lambda x: print('\x1b[0;33m' + str(x) + '\x1b[0m') or x,
     'LOAD'  : lambda x: load(x),
-    'EVAL'  : lambda x: pyeval(x),
+    'EVAL'  : lambda x: pyeval(x) or NONE,
 }
 
 def load(path):
