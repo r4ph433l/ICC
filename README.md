@@ -26,7 +26,7 @@ like mathematic intervals - brackets pointing outwards means that the value is e
 can be used in a for loop
 
 `exp in ([]) exp, exp ([])` returns `1` if the value (even floating point values) is inside the interval or `0` if not
-# Operator
+# Operators
 ## Arithmetic
 | operator | usage | python |
 | --- | --- | --- |
