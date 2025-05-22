@@ -9,5 +9,5 @@
 	stdin = "/dev/stdin";
 	echo "f = a mod b";
 	load stdin;
-	a mod b;
+	a mod b
 }
