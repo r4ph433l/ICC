@@ -40,7 +40,7 @@ can be used in a for loop
 | `\` | `a \ b` | `floor(a / b)` |
 | `**` | `a ** b` | |
 
-| operator | alternative | usage | python |
+| operator | alt | usage | python |
 | --- | --- | --- | --- |
 | `mod` | `≡` | `a mod b` | `a % b` |
 | `and` | `∧` | `a and b` | `int(bool(a) and bool(b))` |
