@@ -94,7 +94,7 @@ to access the stack use `$<exp>`, `$0` returns the length of the stack
 lambda functions also introduce lexical scoping
 # Inbuild Functions
 | function | alternative | usage | description |
-| --- | --- | --- |
+| --- | --- | --- | --- |
 | `echo` | `♫` | `echo "hi"` | prints to stdout |
 | `load` | `⊃` | `load "test.icc"` | executes code in given file |
 | `eval` | `⊢` | `eval "print('hi')"` | executes code in python |
