@@ -153,7 +153,9 @@ rule_func('seq', "exp : '{' seq '}'", lambda p: ('seq', *p[2]))
 # assign, increment & decrement
 rule_node('asg', 'exp : ID ASG exp', 2, 1, 3)
 rule_node('asg', 'exp : ID USG', 2, 1)
-# TODO assign to agt
+rule_func('asg', "exp : ID '[' exp ']' ASG exp", lambda p: ('a_asg', p[5], p[1], p[3], p[6]))
+rule_func('asg', "exp : ID '[' exp ']' USG", lambda p: ('a_asg', p[5], p[1], p[3]))
+# TODO assign to aget
 
 # comperator lists
 # only work if compare operators all have same precedence (idky)
@@ -167,11 +169,12 @@ rule_func('arr', "arr : arr ',' exp", lambda p: [*p[1], p[3]])
 rule_func('arr', "exp : arr %prec ARR", lambda p: ('arr', *p[1]))
 rule_func('arr', "exp : '(' ')'", lambda p: ('arr',))
 rule_func('arr', "exp : exp ','", lambda p: ('arr', p[1]))
-rule_func('arr', "agt : exp '[' exp ']'", lambda p: ('aget', p[1], p[3]))
+rule_func('arr', "agt : exp '[' exp ']'", lambda p: ('a_get', p[1], p[3]))
 rule_func('arr', 'exp : agt', lambda p: p[1])
 
 # lambda, functions and calls
-rule_func('fun', 'exp : exp TO exp', lambda p: ('lambda', p[1], p[3]))
+rule_func('fun', 'exp : exp TO exp', lambda p: ('lambda', p[1], p[3], False))
+rule_func('fun', 'exp : exp STK TO exp', lambda p: ('lambda', p[1], p[4], True))
 rule_func('fun', "exp : ID '(' exp ')'", lambda p: ('call', p[1], p[3]))
 rule_func('fun', "exp : ID '(' ')'", lambda p: ('call', p[1], ('arr',)))
 rule_func('stk', "exp : STK exp", lambda p: ('stk', p[2]))
@@ -269,15 +272,21 @@ def eval(exp, env):
                     dic[xi[2]] = eval(xi, env.fork())
                 else: arr.append(eval(xi, env))
             return Array(arr, dic)
-        case ('aget', a, i):
+        case ('a_get', a, i):
             i = eval(i, env)
             a = eval(a, env)
             return a[i]
         case ('asg', op, x, *exp):
-            if op == '=':  env[x] = eval(*exp, env)
-            if op == '++': env[x]  += 1
-            if op == '--': env[x]  -= 1
+            if op == '=':  env[x]  = eval(*exp, env)
+            if op == '++': env[x] += 1
+            if op == '--': env[x] -= 1
             return env[x]
+        case ('a_asg', op, a, i, *exp):
+            i = eval(i, env)
+            if op == '=':  env[a][i]  = eval(*exp, env)
+            if op == '++': env[a][i] += 1
+            if op == '--': env[a][i] -= 1
+            return env[a][i]
         case ('id', x):
             return env[x]
         case ('seq', *exp, ret):
@@ -294,7 +303,7 @@ def eval(exp, env):
         case ('for', i, it, exp, *n):
             it = eval(it, env)
             if not hasattr(it, '__iter__'): raise Exception(f'{it} is not iterable')
-            if len(n) > 0: it.step *= eval(n[0], env)
+            if len(n) > 0: it.step *= eval(*n, env)
             ret = NONE
             for x in it:
                 env[i] = x
@@ -305,14 +314,14 @@ def eval(exp, env):
             while eval(cond, env):
                 ret = eval(exp, env)
             return ret
-        case ('lambda', arg, fun):
+        case ('lambda', arg, fun, stk):
             t, *arg = arg
             if t == 'arr':
                 for i in range(len(arg)):
                     if arg[i][0] != 'id': raise Exception(f'arg {arg[i]} is illegal')
                     arg[i] = arg[i][1]
             elif t != 'id': raise Exception(f'arg {arg} is illegal')
-            return (env, arg, fun)
+            return (env, arg, fun, stk)
         case ('call', fun, arg):
             fun = env[fun]
             env_f = fun[0].fork()
@@ -326,6 +335,8 @@ def eval(exp, env):
                     arg_f.remove(a)
             for x in arg_f:
                 env_f[x] = arg.pop(0)
+            if len(arg) > 0 and not fun[3]:
+                raise Exception(f'too many arguments')
             for x in arg:
                 env_f.stk.append(x)
             return eval(fun[2], env_f)
