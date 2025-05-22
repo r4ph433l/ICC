@@ -27,4 +27,5 @@ mathematical comparison chains like `0 < a < 1` are also possible
 | `=` | `a = 1` | |
 | `++` | `a++` | `a += 1` |
 | `--` | `a--` | `a -= 1` |
+
 any binary operator assignment combination like `mod=` are also possible
