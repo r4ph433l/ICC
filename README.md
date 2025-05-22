@@ -1,3 +1,4 @@
+$\usepackage{ stmaryrd }$
 # Values
 | name | regex | example |
 | --- | --- | --- |
