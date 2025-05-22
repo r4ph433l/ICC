@@ -65,21 +65,27 @@ literals = r'+-*(){};[],:'
 restoken = ['MOD', 'OR', 'XOR', 'AND', 'NOT', 'IF', 'IN', 'ELSE', 'FOR', 'WHILE', 'ECHO', 'LOAD', 'EVAL']
 engwords = {s.lower(): s for s in restoken}
 reserved = engwords.copy()
-tokens = ['NUM', 'STR', 'ID', 'ASG', 'USG', 'DIV', 'POW', 'CMP', 'END', 'TO'] + restoken
+tokens = ['NUM', 'STR', 'ID', 'STK', 'ASG', 'USG', 'DIV', 'POW', 'CMP', 'END', 'TO'] + restoken
+
+_t('MOD', '≡')
+_t('OR', '∨'); _t('XOR', '⊻'); _t('AND', '∧'); _t('NOT', '¬')
+_t('IF', r'\?'); _t('ELSE', r'\!'); _t('FOR', '∀'); _t('IN', '∈'); _t('WHILE', '⟲')
+_t('ECHO', '♫'); _t('LOAD', '⊃'); _t('EVAL', '⊢')
 
 def t_ID(t):
-    r'[a-zA-Z\u00a0-\U0001f645_][a-zA-Z\u00a0-\U0001f645_0-9]*'
+    r'[a-zA-Z\u00a0-\U0001f645_!?][a-zA-Z\u00a0-\U0001f645_0-9!?]*'
     t.type = reserved.get(t.value, 'ID')
     return t
 
 t_NUM = r'((0|[1-9][0-9]*)\.([0-9]*[1-9]|0)|0b0|0b1[0|1]*|0x0|0x[1-9a-fA-F][0-9a-fA-F]*|0|[1-9][0-9]*)j?'
-t_STR = r'".*"'
+t_STR = r'"[^"]*"'
 t_ASG = r'='
 t_USG = r'(\+\+|--)((?!' + t_NUM + '|' + t_ID.__doc__ + ')|(?=imag))' # edge cases: ['1++1', '1++a', 'a++imag']
 t_DIV = r'[|\/\\]'
 t_POW = r'\*\*'
 t_CMP = r'[!=<>]=|[<>]'
 t_END = r'\.'
+t_STK = r'\$'
 t_TO  = r'->'
 
 t_ignore = ' \t'
@@ -112,13 +118,13 @@ precedence = [
         ['left', '+', '-'],
         ['left', '*', 'DIV', 'MOD'],
         ['right', 'POW'],
-        ['left', 'NOT'],
+        ['left', 'NOT', 'STK'],
         ['right', 'USG'],
         ['left', '['],
 ]
 
 # simples
-rule_node('id',  'exp : ID', 1)
+rule_node('id',  'exp : ID',  1)
 rule_node('val', 'exp : NUM', 1)
 rule_node('val', 'exp : STR', 1)
 
@@ -146,6 +152,7 @@ rule_func('seq', "exp : '{' seq '}'", lambda p: ('seq', *p[2]))
 # assign, increment & decrement
 rule_node('asg', 'exp : ID ASG exp', 2, 1, 3)
 rule_node('asg', 'exp : ID USG', 2, 1)
+# TODO assign to agt
 
 # comperator lists
 # only work if compare operators all have same precedence (idky)
@@ -159,11 +166,13 @@ rule_func('arr', "arr : arr ',' exp", lambda p: [*p[1], p[3]])
 rule_func('arr', "exp : arr %prec ARR", lambda p: ('arr', *p[1]))
 rule_func('arr', "exp : '(' ')'", lambda p: ('arr',))
 rule_func('arr', "exp : exp ','", lambda p: ('arr', p[1]))
-rule_func('arr', "exp : exp '[' exp ']'", lambda p: ('aget', p[1], p[3]))
+rule_func('arr', "agt : exp '[' exp ']'", lambda p: ('aget', p[1], p[3]))
+rule_func('arr', 'exp : agt', lambda p: p[1])
 
 # lambda, functions and calls
 rule_func('fun', 'exp : exp TO exp', lambda p: ('lambda', p[1], p[3]))
 rule_func('fun', "exp : ID '(' exp ')'", lambda p: ('call', p[1], p[3]))
+rule_func('stk', "exp : STK exp", lambda p: ('stk', p[2]))
 
 # control structures
 rule_func('ctl', "ifc : IF exp ':' exp", lambda p: ('if', p[2], p[4], None))
@@ -307,23 +316,35 @@ def eval(exp, env):
         case ('call', fun, arg):
             fun = env[fun]
             env_f = fun[0].fork()
+            arg_f = fun[1].copy()
             arg = eval(arg, env)
             if not isinstance(arg, Array):
                 arg = [arg]
-            for x in fun[1]:
+            else:
+                env_f.vars |= arg.dic
+                for a in arg.dic.keys():
+                    arg_f.remove(a)
+            for x in arg_f:
                 env_f[x] = arg.pop(0)
+            for x in arg:
+                env_f.stk.append(x)
             return eval(fun[2], env_f)
+        case ('stk', i):
+            i = eval(i, env)
+            if i == 0: return len(env.stk)
+            return env.stk[-i]
         case _: raise Exception(f'exception in {exp}')
 
 class Environment:
     def __init__(self, parent=None):
         self.parent = parent
         self.vars = {}
+        self.stk  = []
 
     def __repr__(self):
         s = repr(self.vars)
         if self.parent:
-            return repr(self.parent) + '+' + s
+            return repr(self.parent) + ' + ' + s
         return s
 
     def fork(self):
@@ -340,8 +361,7 @@ class Environment:
         if name in self.vars:
             return self.vars[name]
         elif self.parent is None:
-            self.vars[name] = 0
-            return 0
+            return NONE
         else: return self.parent[name]
 
     def __setitem__(self, name, value):
@@ -406,17 +426,14 @@ class Array(list):
         else: super().__setitem__(name, value)
 
 def language(s):
-    has_run = False
-    if not has_run: from deep_translator import GoogleTranslator; has_run = True
     global reserved
-    match (s):
-        case 'unicode': reserved |= {'≡':'MOD', '∨':'OR', '⊻':'XOR', '∧':'AND', '¬':'NOT', '→':'IF', '∴':'ELSE', '∀':'FOR', '∈':'IN', '⟲':'WHILE', '♫':'ECHO', '⊃':'LOAD', '⊢':'EVAL'}
-        case _:
-            gt = GoogleTranslator(source='auto', target=s)
-            for token in restoken:
-                reserved[gt.translate(token).replace(' ', '_').lower()] = token
-            if verbose: print(tres)
-    return 1
+    has_run = False
+    if not has_run:
+        from deep_translator import GoogleTranslator
+        has_run = True
+    gt = GoogleTranslator(source='auto', target=s)
+    for token in restoken:
+        reserved[gt.translate(token).replace(' ', '_').lower()] = token
 
 #   *----...-*
 #   |  MAIN  |
@@ -472,6 +489,7 @@ if __name__ == '__main__':
             if src == '': continue
             if src.strip() == 'help':
                 print('\n'.join([f'{value:5} = {key}' for key, value in reserved.items() if key not in engwords.keys()]))
+                print(env)
                 continue
             result = parser.parse(src)
             if verbose: print(result)
