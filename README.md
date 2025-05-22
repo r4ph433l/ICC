@@ -11,4 +11,4 @@
 | --- | --- | --- |
 | `+` | `a + b` | $[ a+b ]_\rho(\sigma) = [a](\sigma) + [b]_\rho(\sigma)$ |
 
-$[a+b]\rho(\sigma)$
+$[a+b]_\rho(\sigma)$
