@@ -6,6 +6,16 @@
 | Binary | `0b(0\|1[0-1]*)` | `0b0`, `0b10011`, `0b1111100111` |
 | Float | `0\|[1-9][0-9]*\.[0-9]*[1-9]\|0` | `0.0`, `0.13`, `99.9` |
 | Complex | `<any of the above>j` | `0j`, `0x13j`, `99.9j` |
+# Lists
+lists are just comma separated expressions e.g. `1,2,3` -> `(1,2,3)`
+
+empty list: `()`
+
+list containing one item: `1,` -> `(1)`
+
+if you want nested lists you can do `1,(2,3)` -> `(1,(2,3))` and let precedence do the rest
+
+or `(1,2,3),,,` -> `(((1,2,3)))`
 # Operator
 ## Arithmetic
 | operator | usage | python |
@@ -36,3 +46,17 @@ mathematical comparison chains like `0 < a < 1` are also possible
 | `--` | `a--` | `a -= 1` |
 
 any binary operator assignment combination like `mod=` are also possible
+# Sequences
+`{exp; exp(;)}`
+
+also returns last expression as value
+# Control Structures
+```
+if exp: exp (else exp).
+```
+```
+for exp in IT: exp.
+```
+and IT can be a list 
+
+also returns last expression as value
