@@ -1,6 +1,6 @@
 #!/bin/python
 verbose=False
-yacc_verbose=False
+write_tables=False
 
 #   *----------------...-*
 #   |  P_RULE GENERATOR  |
@@ -201,8 +201,6 @@ for sys in ['ECHO', 'LOAD', 'EVAL']:
 
 def p_error(p):
     raise SyntaxError(f'Syntax error in {p}')
-
-parser = yacc(start='exp', debug=yacc_verbose, write_tables=yacc_verbose)
 
 #   *-----------...-*
 #   |  INTERPRETER  |
@@ -448,11 +446,13 @@ if __name__ == '__main__':
         description='ICC25 Interpreter\nInterpretation und Compilation von Computerprogrammen 2025\nHochschule Bonn-Rhein-Sieg',
         epilog='󱤹 Raphael Schönefeld', formatter_class=argparse.RawTextHelpFormatter)
     argp.add_argument('-i', '--input', help='ICC25 source code')
-    argp.add_argument('-l', '--language', help='powered by deep-translator')
+    argp.add_argument('-l', '--language')
     argp.add_argument('-sl', '--supported-languages', action='store_true')
+    argp.add_argument('-t', '--write-tables', action='store_true')
     argp.add_argument('-v', '--verbose', action='store_true')
     args = argp.parse_args()
     verbose = args.verbose
+    parser = yacc(start='exp', debug=args.verbose, write_tables=args.write_tables)
 
     if args.supported_languages:
         try:
