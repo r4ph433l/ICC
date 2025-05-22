@@ -11,13 +11,19 @@
 | operator | usage | python |
 | --- | --- | --- |
 | `+` | `a + b` |  |
+| `+` | `+ a` | `abs(a)` |
 | `-` | `a - b` |  |
+| `-` | `- a` | `- a` |
 | `*` | `a * b` |  |
 | `\|` | `a \| b` | `a / b` |
 | `/` | `a / b` | `ceil(a / b)` |
 | `\` | `a \ b` | `floor(a / b)` |
 | `**` | `a ** b` | |
 | `mod` | `a mod b` | `a % b` |
+| `and` | `a and b` | `int(bool(a) and bool(b))` |
+| `or` | `a or b` | `int(bool(a) or bool(b))` |
+| `xor` | `a xor b` | `int(bool(a) == bool(b))` |
+| `not` | `not a` | `int(not bool(a))` |
 ## Comparisons
 `<`, `>`, `<=`, `>=`, `==` and `!=` work the same as in python
 
