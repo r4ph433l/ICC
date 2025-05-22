@@ -227,7 +227,7 @@ ops = {
     'XOR'   : lambda x,y: int(bool(x) ==  bool(y)),
     'AND'   : lambda x,y: int(bool(x) and bool(y)),
     'NOT'   : lambda x: int(not bool(x)),
-    'ECHO'  : lambda x: print('\x1b[0;33m' + str(x) + '\x1b[0m') or x,
+    'ECHO'  : lambda x: print(x) or x,
     'LOAD'  : lambda x: load(x),
     'EVAL'  : lambda x: pyeval(x) or NONE,
 }
@@ -494,7 +494,10 @@ if __name__ == '__main__':
                 continue
             result = parser.parse(src)
             if verbose: print(result)
-            if result: val = eval(result, env); print('(...)' if isinstance(val, tuple) and not verbose else val)
+            if result:
+                val = eval(result, env)
+                if isinstance(val, tuple): val = '(...)'
+                print('\x1b[0;34m' + str(val) + '\x1b[0m')
         except EOFError: exit()
         except Exception as e: print('\x1b[0;31m' + (traceback.format_exc() if verbose else repr(e) + '\n') + '\x1b[0m', end='')
         except KeyboardInterrupt as e: print('\n\x1b[0;31m' + repr(e) + '\x1b[0m')
