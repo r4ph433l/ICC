@@ -39,11 +39,12 @@ can be used in a for loop
 | `/` | `a / b` | `ceil(a / b)` |
 | `\` | `a \ b` | `floor(a / b)` |
 | `**` | `a ** b` | |
-| `mod` | `a mod b` | `a % b` |
-| `and` | `a and b` | `int(bool(a) and bool(b))` |
-| `or` | `a or b` | `int(bool(a) or bool(b))` |
-| `xor` | `a xor b` | `int(bool(a) == bool(b))` |
-| `not` | `not a` | `int(not bool(a))` |
+| operator | alternative | usage | python |
+| `mod` | `≡` | `a mod b` | `a % b` |
+| `and` | `∧` | `a and b` | `int(bool(a) and bool(b))` |
+| `or`  | `∨` | `a or b` | `int(bool(a) or bool(b))` |
+| `xor` | `⊻` | `a xor b` | `int(bool(a) == bool(b))` |
+| `not` | `¬` | `not a` | `int(not bool(a))` |
 ## Comparisons
 `<`, `>`, `<=`, `>=`, `==` and `!=` work the same as in python
 
@@ -65,13 +66,18 @@ also returns last expression as value
 # Control Structures
 ```
 if exp: exp (else exp).
+? exp: exp (! exp).
 ```
 ```
 for exp in IT: exp.
+∀ exp ∈ IT: exp.
 ```
 `IT` can be a list or an interval
+
+you can also write `for 2i in [0,10]: echo i.` to print every even number between 0 and 10
 ```
 while exp: exp.
+⟲ exp: exp.
 ```
 all structures return the last expression as value
 # Lambda Functions
@@ -85,11 +91,11 @@ to access the stack use `$exp`, `$0` returns the length of the stack
 
 lambda functions also introduce lexical scoping
 # Inbuild Functions
-| function | usage | description |
+| function | alternative | usage | description |
 | --- | --- | --- |
-| `echo` | `echo "hi"` | prints to stdout |
-| `load` | `load "test.icc"` | executes code in given file |
-| `eval` | `eval "print('hi')"` | executes code in python |
+| `echo` | `♫` | `echo "hi"` | prints to stdout |
+| `load` | `⊃` | `load "test.icc"` | executes code in given file |
+| `eval` | `⊢` | `eval "print('hi')"` | executes code in python |
 
 little trick: if you are on linux you can just `load "/dev/stdin"` to input data
 # Syntax translation

@@ -73,7 +73,7 @@ _t('IF', r'\?'); _t('ELSE', r'\!'); _t('FOR', '∀'); _t('IN', '∈'); _t('WHILE
 _t('ECHO', '♫'); _t('LOAD', '⊃'); _t('EVAL', '⊢')
 
 def t_ID(t):
-    r'[a-zA-Z\u00a0-\U0001f645_!?][a-zA-Z\u00a0-\U0001f645_0-9!?]*'
+    r'[a-zA-Z\u00a0-\U0001f645_][a-zA-Z\u00a0-\U0001f645_0-9]*'
     t.type = reserved.get(t.value, 'ID')
     return t
 
