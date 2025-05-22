@@ -80,7 +80,7 @@ f(2,3)
 ```
 if you oversupply a function the arguments get added to a stack
 
-to access the stack use `$3` - `$0` gives the length of the stack
+to access the stack use `$exp`, `$0` returns the length of the stack
 
 lambda functions also introduce lexical scoping
 # Inbuild Functions
