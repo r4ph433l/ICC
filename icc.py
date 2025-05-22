@@ -163,7 +163,7 @@ rule_func('arr', "exp : exp '[' exp ']'", lambda p: ('aget', p[1], p[3]))
 
 # lambda, functions and calls
 rule_func('fun', 'exp : exp TO exp', lambda p: ('lambda', p[1], p[3]))
-rule_func('fun', "exp : exp '(' exp ')'", lambda p: ('call', p[1], p[3]))
+rule_func('fun', "exp : ID '(' exp ')'", lambda p: ('call', p[1], p[3]))
 
 # control structures
 rule_func('ctl', "ifc : IF exp ':' exp", lambda p: ('if', p[2], p[4], None))
@@ -253,7 +253,13 @@ def eval(exp, env):
         case ('val', x):
             return pyeval(x) # zieh, zieh, zieh
         case ('arr', *x):
-            return Array([eval(xi, env) for xi in x])
+            arr = []
+            dic = {}
+            for xi in x:
+                if xi[0] == 'asg':
+                    dic[xi[2]] = eval(xi, env.fork())
+                else: arr.append(eval(xi, env))
+            return Array(arr, dic)
         case ('aget', a, i):
             i = eval(i, env)
             a = eval(a, env)
@@ -299,7 +305,7 @@ def eval(exp, env):
             elif t != 'id': raise Exception(f'arg {arg} is illegal')
             return (env, arg, fun)
         case ('call', fun, arg):
-            fun = eval(fun, env)
+            fun = env[fun]
             env_f = fun[0].fork()
             arg = eval(arg, env)
             if not isinstance(arg, Array):
@@ -373,11 +379,31 @@ class Range():
         return lo <= x <= up and (lo < x or inc[0]) and (x < up or inc[1])
 
 class Array(list):
-    def __init__(self, *args):
-        super().__init__(*args)
+    def __init__(self, arr, dic):
+        super().__init__(arr)
+        self.dic = dic
 
     def __repr__(self):
-        return '(' + super().__repr__()[1:-1] + ')'
+        s = super().__repr__()[1:-1]
+        if len(self.dic) > 0:
+            if len(s) > 0:
+                s += ', '
+            s += repr(self.dic)[1:-1]
+        return '(' + s + ')'
+
+    def __getitem__(self, name):
+        if isinstance(name, str):
+            if name == '':
+                return Array(self.dic.values(), {})
+            return self.dic[name]
+        return super().__getitem__(name)
+
+    def __setitem__(self, name, value):
+        if isinstance(name, str):
+            if name == '':
+                raise Exception("key can't be empty string")
+            self.dic[name] = value
+        else: super().__setitem__(name, value)
 
 def language(s):
     has_run = False
