@@ -20,6 +20,7 @@
 | `mod` | `a mod b` | `a % b` |
 ## Comparisons
 `<`, `>`, `<=`, `>=`, `==` and `!=` work the same as in python
+
 mathematical comparison chains like `0 < a < 1` are also possible
 ## Assignments
 | operator | usage | python |
