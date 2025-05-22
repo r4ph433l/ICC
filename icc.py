@@ -1,5 +1,6 @@
 #!/bin/python
 verbose=False
+yacc_verbose=False
 
 #   *----------------...-*
 #   |  P_RULE GENERATOR  |
@@ -201,7 +202,7 @@ for sys in ['ECHO', 'LOAD', 'EVAL']:
 def p_error(p):
     raise SyntaxError(f'Syntax error in {p}')
 
-parser = yacc(start='exp')
+parser = yacc(start='exp', debug=yacc_verbose, write_tables=yacc_verbose)
 
 #   *-----------...-*
 #   |  INTERPRETER  |
