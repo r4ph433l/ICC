@@ -16,6 +16,15 @@ list containing one item: `1,` -> `(1)`
 if you want nested lists you can do `1,(2,3)` -> `(1,(2,3))` and let precedence do the rest
 
 or `(1,2,3),,,` -> `(((1,2,3)))`
+# Intervals
+```
+([])exp, exp([])
+```
+like mathematic intervals - brackets pointing outwards means that the value is excluded
+
+can be used in a for loop
+
+`exp in ([]) exp, exp ([])` returns `1` if the value (even floating point values) is inside the interval or `0` if not
 # Operator
 ## Arithmetic
 | operator | usage | python |
@@ -47,7 +56,9 @@ mathematical comparison chains like `0 < a < 1` are also possible
 
 any binary operator assignment combination like `mod=` are also possible
 # Sequences
-`{exp; exp(;)}`
+```
+{exp; exp(;)}
+```
 
 also returns last expression as value
 # Control Structures
@@ -57,6 +68,31 @@ if exp: exp (else exp).
 ```
 for exp in IT: exp.
 ```
-and IT can be a list 
+`IT` can be a list or an interval
+```
+while exp: exp.
+```
+all structures return the last expression as value
+# Lambda Functions
+```
+f = a,b -> a+b
+f(2,3)
+```
+if you oversupply a function the arguments get added to a stack
 
-also returns last expression as value
+to access the stack use `$3` - `$0` gives the length of the stack
+
+lambda functions also introduce lexical scoping
+# Inbuild Functions
+| function | usage | description |
+| --- | --- | --- |
+| `echo` | `echo "hi"` | prints to stdout |
+| `load` | `load "test.icc"` | executes code in given file |
+| `eval` | `eval "print('hi')"` | executes code in python |
+
+# Syntax translation
+dont use it
+
+...
+
+you can add a "Langbang" to the top of your file so your syntax gets translated: `#?italian`
