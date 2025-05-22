@@ -172,6 +172,7 @@ rule_func('arr', 'exp : agt', lambda p: p[1])
 # lambda, functions and calls
 rule_func('fun', 'exp : exp TO exp', lambda p: ('lambda', p[1], p[3]))
 rule_func('fun', "exp : ID '(' exp ')'", lambda p: ('call', p[1], p[3]))
+rule_func('fun', "exp : ID '(' ')'", lambda p: ('call', p[1], ('arr',)))
 rule_func('stk', "exp : STK exp", lambda p: ('stk', p[2]))
 
 # control structures
