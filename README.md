@@ -61,25 +61,25 @@ mathematical comparison chains like `0 < a < 1` are also possible
 any binary operator assignment combination like `mod=` are also possible
 # Sequences
 ```
-{exp; exp(;)}
+{<exp>; <exp>(;)}
 ```
 
 also returns last expression as value
 # Control Structures
 ```
-if exp: exp (else exp).
-? exp: exp (! exp).
+if <exp>: <exp> (else <exp>).
+? <exp>: <exp> (! <exp>).
 ```
 ```
-for exp in IT: exp.
-∀ exp ∈ IT: exp.
+for <exp> in IT: <exp>.
+∀ <exp> ∈ IT: <exp>.
 ```
 `IT` can be a list or an interval
 
 you can also write `for 2i in [0,10]: echo i.` to print every even number between 0 and 10
 ```
-while exp: exp.
-⟲ exp: exp.
+while <exp>: <exp>.
+⟲ <exp>: <exp>.
 ```
 all structures return the last expression as value
 # Lambda Functions
@@ -89,7 +89,7 @@ f(2,3)
 ```
 if you oversupply a function the arguments get added to a stack
 
-to access the stack use `$exp`, `$0` returns the length of the stack
+to access the stack use `$<exp>`, `$0` returns the length of the stack
 
 lambda functions also introduce lexical scoping
 # Inbuild Functions
