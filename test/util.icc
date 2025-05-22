@@ -1,0 +1,18 @@
+{
+    # sum with usage of the function stack #
+    sum = () -> {
+        if $0 > 0: {
+            x = 0;
+            for i in [1,$0]: x += $i.
+         }.
+    };
+    # nice unicode syntax #
+    ∑ = () -> {
+        ? $0 > 0: {
+        x = 0;
+            ∀ i ∈ [1,$0]: x += $i.
+        }.
+    };
+    # recursive multiplitcation #
+    mul = a,b -> if a > 0: b += mul(a--, b) else a.
+}
