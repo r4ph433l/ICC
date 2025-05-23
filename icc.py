@@ -71,7 +71,7 @@ tokens = ['NUM', 'STR', 'ID', 'STK', 'ASG', 'USG', 'DIV', 'POW', 'CMP', 'END', '
 _t('MOD', '≡')
 _t('OR', '∨'); _t('XOR', '⊻'); _t('AND', '∧'); _t('NOT', '¬')
 _t('IF', r'\?'); _t('ELSE', r'\!'); _t('FOR', '∀'); _t('IN', '∈'); _t('WHILE', '⟲')
-_t('ECHO', '♫'); _t('READ', '📖'); _t('LOAD', '⊃'); _t('EVAL', '⊢'); _t('SIZE', '‖')
+_t('ECHO', '♫'); _t('READ', '𝄽'); _t('LOAD', '⊃'); _t('EVAL', '⊢'); _t('SIZE', '‖')
 
 def t_ID(t):
     r'[a-zA-Z\u00a0-\U0001f645_][a-zA-Z\u00a0-\U0001f645_0-9]*'
