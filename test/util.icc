@@ -14,5 +14,27 @@
         }.
     };
     # recursive multiplication #
-    mul = a,b -> if a > 0: b += mul(a--, b) else a.
+    mul = a,b ->
+        if a > 0:
+            b += mul(a--, b)
+        else a.;
+    # recursive factorial #
+    fact = n ->
+        if n <= 1:
+            1
+        else fact(n--) * n.;
+    # map higher order #
+    map = (f)$ -> {
+        arr = ();
+        for i in ]0,$0]:
+                arr += (f($i),).;
+        arr
+    };
+    # or even better #
+    🗺️ = ƒ$ -> {
+         = ();
+        ∀ ι ∈ ]0,$0]:
+             += (f($ι),).;
+        
+    }
 }

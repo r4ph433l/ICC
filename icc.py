@@ -167,7 +167,7 @@ rule_func('arr', "arr : exp ',' exp", lambda p: [p[1], p[3]])
 rule_func('arr', "arr : arr ',' exp", lambda p: [*p[1], p[3]])
 rule_func('arr', "exp : arr %prec ARR", lambda p: ('arr', *p[1]))
 rule_func('arr', "exp : '(' ')'", lambda p: ('arr',))
-rule_func('arr', "exp : exp ','", lambda p: ('arr', p[1]))
+rule_func('arr', "exp : '(' exp ',' ')'", lambda p: ('arr', p[2]))
 rule_func('arr', "agt : exp '[' exp ']'", lambda p: ('a_get', p[1], p[3]))
 rule_func('arr', 'exp : agt', lambda p: p[1])
 
@@ -326,17 +326,20 @@ def eval(exp, env):
             env_f = fun[0].fork()
             arg_f = fun[1].copy()
             arg = eval(arg, env)
+            # arg can be array or exp
             if not isinstance(arg, Array):
                 arg = [arg]
             else:
                 env_f.vars |= arg.dic
                 for a in arg.dic.keys():
                     arg_f.remove(a)
-            print(arg_f)
+            # match given args to lambda args
             while arg_f and arg:
                 env_f[arg_f.pop(0)] = arg.pop(0)
+            # undersupply
             if arg_f:
                 return (env_f, arg_f, fun[2], fun[3])
+            # oversupply
             if arg and not fun[3]:
                 raise Exception(f'too many arguments')
             for x in arg:
@@ -345,7 +348,7 @@ def eval(exp, env):
         case ('stk', i):
             i = eval(i, env)
             if i == 0: return len(env.stk)
-            return env.stk[-i]
+            return env.stk[i-1]
         case _: raise Exception(f'exception in {exp}')
 
 class Environment:
@@ -437,7 +440,7 @@ class Array(list):
                 raise Exception("key can't be empty string")
             self.dic[name] = value
         else: super().__setitem__(name, value)
-
+    
 def language(s):
     global reserved
     has_run = False
@@ -510,7 +513,7 @@ if __name__ == '__main__':
             if verbose: print(result)
             if result:
                 val = eval(result, env)
-                if isinstance(val, tuple) and not verbose: val = '(...)'
+                if isinstance(val, tuple) and not verbose: val = ('(' if val[3] else '') + ','.join(val[1]) + (')$' if val[3] else '') + ' -> {...}'
                 print('\x1b[0;34m' + str(val) + '\x1b[0m')
         except EOFError: exit()
         except Exception as e: print('\x1b[0;31m' + (traceback.format_exc() if verbose else repr(e) + '\n') + '\x1b[0m', end='')
