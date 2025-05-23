@@ -66,7 +66,7 @@ literals = r'+-*(){};[],:'
 restoken = ['MOD', 'OR', 'XOR', 'AND', 'NOT', 'IF', 'IN', 'ELSE', 'FOR', 'WHILE', 'ECHO', 'READ', 'LOAD', 'EVAL', 'SIZE']
 engwords = {s.lower(): s for s in restoken}
 reserved = engwords.copy()
-tokens = ['NUM', 'STR', 'ID', 'STK', 'ASG', 'USG', 'DIV', 'POW', 'CMP', 'END', 'TO'] + restoken
+tokens = ['NUM', 'STR', 'ID', 'STK', 'ASG', 'USG', 'DIV', 'POW', 'CMP', 'TO'] + restoken
 
 _t('MOD', '≡')
 _t('OR', '∨'); _t('XOR', '⊻'); _t('AND', '∧'); _t('NOT', '¬')
@@ -85,7 +85,6 @@ t_USG = r'(\+\+|--)((?!' + t_NUM + '|' + t_ID.__doc__ + ')|(?=imag))' # edge cas
 t_DIV = r'[|\/\\]'
 t_POW = r'\*\*'
 t_CMP = r'[!=<>]=|[<>]'
-t_END = r'\.'
 t_STK = r'\$'
 t_TO  = r'->'
 
@@ -111,8 +110,8 @@ from ply.yacc import yacc
 
 precedence = [
         ['left', 'ID'],
-        ['right', 'ASG', 'SYS', 'IF'],
-        ['right', 'TO'],
+        ['right', 'ASG', 'SYS', 'FOR', 'WHILE', 'TO'],
+        ['right', 'IF'], ['right', 'ELSE'], ['left', 'ELIF'],
         ['left', 'ARR'],['left', ','],
         ['left', 'OR'], ['left', 'XOR'], ['left', 'AND'],
         ['left', 'CLS'], ['left', 'CMP'],
@@ -179,10 +178,11 @@ rule_func('fun', "exp : exp '(' ')'", lambda p: ('call', p[1], ('arr',)))
 rule_func('stk', "exp : STK exp", lambda p: ('stk', p[2]))
 
 # control structures
-rule_func('ctl', "ifc : IF exp ':' exp", lambda p: ('if', p[2], p[4], None))
-rule_func('ctl', "ifc : IF exp ':' exp ELSE exp", lambda p: ('if', p[2], p[4], p[6]))
-rule_func('ctl', "ifc : IF exp ':' exp ELSE ifc %prec IF", lambda p: ('if', p[2], p[4], p[6]))
-rule_func('ctl', 'exp : ifc END', lambda p: p[1])
+rule_func('ctl', "ifc : IF exp ':' exp %prec IF", lambda p: ('if', p[2], p[4]))
+rule_func('ctl', "els : ELSE ':' exp %prec ELSE", lambda p: p[3])
+rule_func('ctl', "ifc : ifc ELSE IF exp ':' exp %prec ELIF", lambda p: p[1] + ((p[4], p[6]),))
+rule_func('ctl', "exp : ifc els %prec ELSE", lambda p: p[1] + ((p[2]),))
+rule_func('ctl', "exp : ifc %prec IF", lambda p: p[1] + ((None),))
 
 # iterator
 rule_func('it', "it : '[' exp ',' exp ']'", lambda p: ('range', p[2], p[4], (True,  True )))
@@ -193,9 +193,9 @@ rule_func('it', "exp : it", lambda p: p[1])
 rule_func('it', 'exp : exp IN exp %prec CMP', lambda p: ('in', p[1], p[3]))
 
 # loops
-rule_func('for', "exp : FOR ID IN exp ':' exp END", lambda p: ('for', p[2], p[4] ,p[6]))
-rule_func('for', "exp : FOR NUM ID IN it ':' exp END", lambda p: ('for', p[3], p[5], p[7], ('val', p[2])))
-rule_func('while', "exp : WHILE exp ':' exp END", lambda p: ('while', p[2], p[4]))
+rule_func('for', "exp : FOR ID IN exp ':' exp %prec FOR", lambda p: ('for', p[2], p[4] ,p[6]))
+rule_func('for', "exp : FOR NUM ID IN it ':' exp %prec FOR", lambda p: ('for', p[3], p[5], p[7], ('val', p[2])))
+rule_func('while', "exp : WHILE exp ':' exp %prec WHILE", lambda p: ('while', p[2], p[4]))
 
 # print and echo
 for sys in ['ECHO', 'READ', 'LOAD', 'EVAL', 'SIZE']:
@@ -305,8 +305,10 @@ def eval(exp, env):
             for e in exp:
                 eval(e, env)
             return eval(ret, env)
-        case ('if', con, exp, alt):
+        case ('if', con, exp, *eif, alt):
             if eval(con, env): return eval(exp, env)
+            for con, exp in eif:
+                if eval(con, env): return eval(exp, env)
             return eval(alt, env) if alt else NONE
         case ('range', lo, up, inc):
             return Range(eval(lo, env), eval(up, env), inc)
@@ -533,13 +535,17 @@ if __name__ == '__main__':
     while True:
         try:
             src = input('\x1b[0;32m' + '>>> ' + '\x1b[0m')
-            while src.count('#') % 2 != 0 or src.count('{') != src.count('}'):# or src.count(':') > src.count('.') - len(re.findall(r'\b\d+\.\d+\b', src)):
-                src += '\n' + input('\x1b[0;32m' + '... ' + '\x1b[0m')
             if src == '': continue
             if src.strip() == 'help':
                 print('\n'.join([f'{value:5} = {key}' for key, value in reserved.items() if key not in engwords.keys()]))
                 print(env)
                 continue
+            wait = src[-1] == ':'
+            while src.count('#') % 2 != 0 or src.count('{') != src.count('}') or wait:
+                s = input('\x1b[0;32m' + '... ' + '\x1b[0m')
+                if s == ':': wait = True
+                elif s == '': wait = False
+                src += '\n' + s
             result = parser.parse(src)
             if verbose: print(result)
             if result: print('\x1b[0;34m' + repr(eval(result, env)) + '\x1b[0m')
