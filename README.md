@@ -1,108 +1,136 @@
-# Values
-| name | regex | example |
-| --- | --- | --- |
-| Decimal | `0\|[1-9][0-9]*` | `0`, `19`, `999` |
-| Hexadecimal | `0x(0\|[1-9A-F][0-9A-F]*)` | `0x0`, `0x13`, `0x3E7` |
-| Binary | `0b(0\|1[0-1]*)` | `0b0`, `0b10011`, `0b1111100111` |
-| Float | `0\|[1-9][0-9]*\.[0-9]*[1-9]\|0` | `0.0`, `0.13`, `99.9` |
-| Complex | `<any of the above>j` | `0j`, `0x13j`, `99.9j` |
-| String | `".*"` | `"hi"` |
-# Lists
-lists are just comma separated expressions e.g. `1,2,3` -> `(1,2,3)`
-
-empty list: `()`
-
-list containing one item: `1,` -> `(1)`
-
-if you want nested lists you can do `1,(2,3)` -> `(1,(2,3))` and let precedence do the rest
-
-or `(1,2,3),,,` -> `(((1,2,3)))`
-# Intervals
+# ICC Language Syntax Guide
+## Comments
+- Block comments are enclosed with `#...#`
+```icc
+# This is a comment #
 ```
-([])exp, exp([])
+## Literals
+### Numbers
+- Supports decimal, binary (`0b`), hexadecimal (`0x`), and complex (`j`) numbers:
+```icc
+42
+0b1010
+0xFF
+3.14
+2j
 ```
-like mathematic intervals - brackets pointing outwards means that the value is excluded
-
-can be used in a for loop
-
-`exp in ([]) exp, exp ([])` returns `1` if the value (even floating point values) is inside the interval or `0` if not
-# Operators
-## Arithmetic
-| operator | usage | python |
-| --- | --- | --- |
-| `+` | `a + b` |  |
-| `+` | `+ a` | `abs(a)` |
-| `-` | `a - b` |  |
-| `-` | `- a` | `- a` |
-| `*` | `a * b` |  |
-| `\|` | `a \| b` | `a / b` |
-| `/` | `a / b` | `ceil(a / b)` |
-| `\` | `a \ b` | `floor(a / b)` |
-| `**` | `a ** b` | |
-
-| operator | alt | usage | python |
-| --- | --- | --- | --- |
-| `mod` | `≡` | `a mod b` | `a % b` |
-| `and` | `∧` | `a and b` | `int(bool(a) and bool(b))` |
-| `or`  | `∨` | `a or b` | `int(bool(a) or bool(b))` |
-| `xor` | `⊻` | `a xor b` | `int(bool(a) == bool(b))` |
-| `not` | `¬` | `not a` | `int(not bool(a))` |
-## Comparisons
-`<`, `>`, `<=`, `>=`, `==` and `!=` work the same as in python
-
-mathematical comparison chains like `0 < a < 1` are also possible
-## Assignments
-| operator | usage | python |
-| --- | --- | --- |
-| `=` | `a = 1` | |
-| `++` | `a++` | `a += 1` |
-| `--` | `a--` | `a -= 1` |
-
-any binary operator assignment combination like `mod=` are also possible
-# Sequences
+### Strings
+- Enclosed in double quotes:
+```icc
+"Hello world!"
 ```
-{<exp>; <exp>(;)}
+## Operators
+### Arithmetic
+
+| Operator     | Meaning        |
+| ------------ | -------------- |
+| `+`          | Addition       |
+| `-`          | Subtraction    |
+| `*`          | Multiplication |
+| `\|`         | Division       |
+| `/`          | Ceil Division  |
+| `\`          | Floor Division |
+| `**`         | Exponentiation |
+| `mod` or `≡` | Modulo         |
+### Boolean Logic
+
+| Operator     | Meaning |
+| ------------ | ------- |
+| `or` or `∨`  | OR      |
+| `and` or `∧` | AND     |
+| `xor` or `⊻` | XOR     |
+| `not` or `¬` | NOT     |
+## Comparison
+
+|Operator|Meaning|
+|---|---|
+|`==`|Equal|
+|`!=`|Not equal|
+|`<, >`|Less/Greater|
+|`<=, >=`|Less/Greater-equal|
+Comparisons can also be grouped like this: `0 < b < 1`
+## Variables
+```icc
+x = 10
+x++        # Increment
+x--        # Decrement 
+a[0] = 5   # Array element assignment
+```
+## Arrays and Ranges
+```icc
+1, 2, 3                 # Array
+()                      # Empty Array
+(1,)                    # Array containing 1 element
+(1, 2, (a = 4))         # Array with named elements
+[1, 10]                 # Inclusive range
+]1, 10[                 # Exclusive range
+```
+## Control Flow
+### If/Else
+```icc
+if cond : exp else exp.
+
+? cond : exp ! exp.
+```
+### For Loops
+```icc
+for i in 1,2,3,4 : exp.
+for 2i in [1,10] : exp.        # with stepsize
+
+∀ i ∈ 1,2,3,4 : exp.
+∀ 2i ∈ [1,10] : exp.
+```
+### While Loops
+```icc
+while exp : exp.
+
+⟲ exp : exp.
+```
+## Functions & Lambdas
+```icc
+(a,b)  -> a+b                               # Lambda
+()$ -> for i in ]0,$0]: echo $i             # Lambda with stack support
+func(1, 2)                                  # Function call
+```
+# Buildin Functions
+
+| Function       | Meaning        |
+| -------------- | -------------- |
+| `echo` or `♫`  | print          |
+| `read` or `📖` | input          |
+| `load` or `⊃`  | import         |
+| `eval` or `⊢`  | eval in python |
+| `size` or `‖`  | length         |
+```icc
+♫ "Hello, world!"
+⊃ "script.icc"
+⊢ "2 + 2"
+```
+## Stack Access
+```icc
+$1        # Top stack value
+$0        # Stack size
+```
+## Language Translation
+You can add `#?italian` to the top of your file and every keyword will be translated to this language. This needs Internet, because its powered by GoogleTranslate :D
+
+## Termination
+
+Multiple statements can be grouped with `;`, and blocks are enclosed in `{}`.
+
+```icc
+{
+  a = 2;
+  b = 3;
+  a + b
+}.
 ```
 
-also returns last expression as value
-# Control Structures
-```
-if <exp>: <exp> (else <exp>).
-? <exp>: <exp> (! <exp>).
-```
-```
-for <exp> in IT: <exp>.
-∀ <exp> ∈ IT: <exp>.
-```
-`IT` can be a list or an interval
+## Example
 
-you can also write `for 2i in [0,10]: echo i.` to print every even number between 0 and 10
+```icc
+# Calculate factorial #
+fact = (n) -> {
+  ? n == 0 : 1 ! n * fact(n - 1)
+}.
 ```
-while <exp>: <exp>.
-⟲ <exp>: <exp>.
-```
-all structures return the last expression as value
-# Lambda Functions
-```
-f = a,b -> a+b
-f(2,3)
-```
-if you oversupply a function the arguments get added to a stack
-
-to access the stack use `$<exp>`, `$0` returns the length of the stack
-
-lambda functions also introduce lexical scoping
-# Inbuild Functions
-| function | alt | usage | description |
-| --- | --- | --- | --- |
-| `echo` | `♫` | `echo "hi"` | prints to stdout |
-| `load` | `⊃` | `load "test.icc"` | executes code in given file |
-| `eval` | `⊢` | `eval "print('hi')"` | executes code in python |
-
-little trick: if you are on linux you can just `load "/dev/stdin"` to input data
-# Syntax translation
-dont use it
-
-...
-
-you can add a "Langbang" to the top of your file so your syntax gets translated: `#?italian`
