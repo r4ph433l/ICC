@@ -36,7 +36,7 @@
 
 | Operator     | Meaning |
 | ------------ | ------- |
-| `or` or `∨`  | OR      |
+| `or`  or `∨` | OR      |
 | `and` or `∧` | AND     |
 | `xor` or `⊻` | XOR     |
 | `not` or `¬` | NOT     |
@@ -97,7 +97,7 @@ func(1, 2)                                  # Function call
 | Function       | Meaning        |
 | -------------- | -------------- |
 | `echo` or `♫`  | print          |
-| `read` or `📖` | input          |
+| `read` or `𝄽` | input          |
 | `load` or `⊃`  | import         |
 | `eval` or `⊢`  | eval in python |
 | `size` or `‖`  | length         |
