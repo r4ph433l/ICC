@@ -63,7 +63,7 @@ def _t(name, reg):
 from ply.lex import lex
 
 literals = r'+-*(){};[],:'
-restoken = ['MOD', 'OR', 'XOR', 'AND', 'NOT', 'IF', 'IN', 'ELSE', 'FOR', 'WHILE', 'ECHO', 'LOAD', 'EVAL']
+restoken = ['MOD', 'OR', 'XOR', 'AND', 'NOT', 'IF', 'IN', 'ELSE', 'FOR', 'WHILE', 'ECHO', 'READ', 'LOAD', 'EVAL', 'SIZE']
 engwords = {s.lower(): s for s in restoken}
 reserved = engwords.copy()
 tokens = ['NUM', 'STR', 'ID', 'STK', 'ASG', 'USG', 'DIV', 'POW', 'CMP', 'END', 'TO'] + restoken
@@ -153,8 +153,8 @@ rule_func('seq', "exp : '{' seq '}'", lambda p: ('seq', *p[2]))
 # assign, increment & decrement
 rule_node('asg', 'exp : ID ASG exp', 2, 1, 3)
 rule_node('asg', 'exp : ID USG', 2, 1)
-rule_func('asg', "exp : ID '[' exp ']' ASG exp", lambda p: ('a_asg', p[5], p[1], p[3], p[6]))
-rule_func('asg', "exp : ID '[' exp ']' USG", lambda p: ('a_asg', p[5], p[1], p[3]))
+rule_func('asg', "exp : agt ASG exp", lambda p: ('a_asg', p[2], p[1], p[3]))
+rule_func('asg', "exp : agt USG", lambda p: ('a_asg', p[2], p[1]))
 
 # comperator lists
 # only work if compare operators all have same precedence (idky)
@@ -190,7 +190,7 @@ rule_func('it', "it : ']' exp ',' exp ']'", lambda p: ('range', p[2], p[4], (Fal
 rule_func('it', "it : '[' exp ',' exp '['", lambda p: ('range', p[2], p[4], (True,  False)))
 rule_func('it', "it : ']' exp ',' exp '['", lambda p: ('range', p[2], p[4], (False, False)))
 rule_func('it', "exp : it", lambda p: p[1])
-rule_func('itv', 'exp : exp IN it', lambda p: ('in', p[1], p[3]))
+rule_func('it', 'exp : exp IN exp %prec CMP', lambda p: ('in', p[1], p[3]))
 
 # loops
 rule_func('for', "exp : FOR ID IN exp ':' exp END", lambda p: ('for', p[2], p[4] ,p[6]))
@@ -198,7 +198,7 @@ rule_func('for', "exp : FOR NUM ID IN it ':' exp END", lambda p: ('for', p[3], p
 rule_func('while', "exp : WHILE exp ':' exp END", lambda p: ('while', p[2], p[4]))
 
 # print and echo
-for sys in ['ECHO', 'LOAD', 'EVAL']:
+for sys in ['ECHO', 'READ', 'LOAD', 'EVAL', 'SIZE']:
     rule_op(sys, fix='prefix', prec='SYS', use_val=False)
 
 def p_error(p):
@@ -228,9 +228,11 @@ ops = {
     'XOR'   : lambda x,y: int(bool(x) ==  bool(y)),
     'AND'   : lambda x,y: int(bool(x) and bool(y)),
     'NOT'   : lambda x: int(not bool(x)),
-    'ECHO'  : lambda x: print(x) or x,
+    'ECHO'  : lambda x: (print(x.format(**env.vars), end='') if isinstance(x, str) else print(x)) or NONE,
+    'READ'  : lambda x: eval(parser.parse(input(x.format(**env.vars) if isinstance(x, str) else x)), env),
     'LOAD'  : lambda x: load(x),
     'EVAL'  : lambda x: pyeval(x) or NONE,
+    'SIZE'  : lambda x: len(x) if hasattr(x, '__len__') else NONE,
 }
 
 def load(path):
@@ -263,6 +265,14 @@ def eval(exp, env):
             return int(all([cmp[op[i]](x[i], x[i+1]) for i in range(len(op))]))
         case ('val', x):
             return pyeval(x) # zieh, zieh, zieh
+        case ('id', x):
+            return env[x]
+        case ('asg', op, x, *exp):
+            match(op):
+                case '=':  env[x]  = eval(*exp, env)
+                case '++': env[x] += 1
+                case '--': env[x] -= 1
+            return env[x]
         case ('arr', *x):
             arr = []
             dic = {}
@@ -275,19 +285,22 @@ def eval(exp, env):
             i = eval(i, env)
             a = eval(a, env)
             return a[i]
-        case ('asg', op, x, *exp):
-            if op == '=':  env[x]  = eval(*exp, env)
-            if op == '++': env[x] += 1
-            if op == '--': env[x] -= 1
-            return env[x]
-        case ('a_asg', op, a, i, *exp):
-            i = eval(i, env)
-            if op == '=':  env[a][i]  = eval(*exp, env)
-            if op == '++': env[a][i] += 1
-            if op == '--': env[a][i] -= 1
-            return env[a][i]
-        case ('id', x):
-            return env[x]
+        case ('a_asg', op, x, *exp):
+            path = []
+            # crawl through the ast
+            while x[0] == 'a_get':
+                _, x, i = x
+                path.append(eval(i, env))
+            path = path[::-1]
+            x = eval(x, env)
+            # get last possible lvalue
+            for i in path[:-1]:
+                x = x[i]
+            match(op):
+                case '=':  x[path[-1]] = eval(*exp, env)
+                case '++': x[path[-1]] += 1
+                case '--': x[path[-1]] -= 1
+            return x[path[-1]]
         case ('seq', *exp, ret):
             for e in exp:
                 eval(e, env)
@@ -385,7 +398,6 @@ class Environment:
             self.parent[name] = value
         else: self.vars[name] = value
 
-
 class Range():
     def __init__(self, low, upper, inclusive=(False, False), step=1):
         if upper < low: step *= -1
@@ -456,7 +468,7 @@ class Lambda():
 
     def __iter__(self):
         return iter([self.env, self.arg, self.fun, self.stk])
-    
+        
 def language(s):
     global reserved
     has_run = False
