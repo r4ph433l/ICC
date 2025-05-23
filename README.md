@@ -48,6 +48,7 @@
 |`!=`|Not equal|
 |`<, >`|Less/Greater|
 |`<=, >=`|Less/Greater-equal|
+
 Comparisons can also be grouped like this: `0 < b < 1`
 ## Variables
 ```icc
@@ -65,8 +66,9 @@ a[0] = 5   # Array element assignment
 a[0]                    # access element
 a["a"]                  # access named element
 a[""]                   # access Array of named elements
-[1, 10]                 # Inclusive range
-]1, 10[                 # Exclusive range
+[1,10]                  # Inclusive range
+]1,10[                  # Exclusive range
+1.1 in [1,2]            # check if value is inside boundaries
 ```
 ## Control Flow
 ### If/Else
