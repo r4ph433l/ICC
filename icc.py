@@ -173,7 +173,7 @@ rule_func('arr', 'exp : agt', lambda p: p[1])
 
 # lambda, functions and calls
 rule_func('fun', 'exp : exp TO exp', lambda p: ('lambda', p[1], p[3], False))
-rule_func('fun', 'exp : exp STK TO exp', lambda p: ('lambda', p[1], p[4], True))
+rule_func('fun', "exp : exp STK TO exp", lambda p: ('lambda', p[1], p[4], True))
 rule_func('fun', "exp : exp '(' exp ')'", lambda p: ('call', p[1], p[3]))
 rule_func('fun', "exp : exp '(' ')'", lambda p: ('call', p[1], ('arr',)))
 rule_func('stk', "exp : STK exp", lambda p: ('stk', p[2]))
@@ -320,11 +320,11 @@ def eval(exp, env):
                     if arg[i][0] != 'id': raise Exception(f'arg {arg[i]} is illegal')
                     arg[i] = arg[i][1]
             elif t != 'id': raise Exception(f'arg {arg} is illegal')
-            return (env, arg, fun, stk)
+            return Lambda(env, arg, fun, stk)
         case ('call', fun, arg):
-            fun = eval(fun, env)
-            env_f = fun[0].fork()
-            arg_f = fun[1].copy()
+            env_f, arg_f, fun, stk = eval(fun, env)
+            env_f = env_f.fork()
+            arg_f = arg_f.copy()
             arg = eval(arg, env)
             # arg can be array or exp
             if not isinstance(arg, Array):
@@ -338,13 +338,13 @@ def eval(exp, env):
                 env_f[arg_f.pop(0)] = arg.pop(0)
             # undersupply
             if arg_f:
-                return (env_f, arg_f, fun[2], fun[3])
+                return Lambda(env_f, arg_f, fun, stk)
             # oversupply
-            if arg and not fun[3]:
+            if arg and not stk:
                 raise Exception(f'too many arguments')
             for x in arg:
                 env_f.stk.append(x)
-            return eval(fun[2], env_f)
+            return eval(fun, env_f)
         case ('stk', i):
             i = eval(i, env)
             if i == 0: return len(env.stk)
@@ -360,7 +360,7 @@ class Environment:
     def __repr__(self):
         s = repr(self.vars)
         if self.parent:
-            return repr(self.parent) + ' + ' + s
+            return repr(self.parent) + '\n' + s
         return s
 
     def fork(self):
@@ -440,6 +440,22 @@ class Array(list):
                 raise Exception("key can't be empty string")
             self.dic[name] = value
         else: super().__setitem__(name, value)
+
+class Lambda():
+    def __init__(self, env, arg, fun, stk=False):
+        self.env = env
+        self.arg = arg
+        self.fun = fun
+        self.stk = stk
+
+    def __repr__(self):
+        head = '(' + ','.join(self.arg)  + ')' + ('$' if self.stk else '') + ' -> '
+        if not verbose:
+            return head + '{...}'
+        return repr(self.env) + '\n' + head + repr(self.fun)
+
+    def __iter__(self):
+        return iter([self.env, self.arg, self.fun, self.stk])
     
 def language(s):
     global reserved
@@ -511,10 +527,7 @@ if __name__ == '__main__':
                 continue
             result = parser.parse(src)
             if verbose: print(result)
-            if result:
-                val = eval(result, env)
-                if isinstance(val, tuple) and not verbose: val = ('(' if val[3] else '') + ','.join(val[1]) + (')$' if val[3] else '') + ' -> {...}'
-                print('\x1b[0;34m' + str(val) + '\x1b[0m')
+            if result: print('\x1b[0;34m' + repr(eval(result, env)) + '\x1b[0m')
         except EOFError: exit()
         except Exception as e: print('\x1b[0;31m' + (traceback.format_exc() if verbose else repr(e) + '\n') + '\x1b[0m', end='')
         except KeyboardInterrupt as e: print('\n\x1b[0;31m' + repr(e) + '\x1b[0m')
