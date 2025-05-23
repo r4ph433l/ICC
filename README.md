@@ -62,6 +62,9 @@ a[0] = 5   # Array element assignment
 ()                      # Empty Array
 (1,)                    # Array containing 1 element
 (1, 2, (a = 4))         # Array with named elements
+a[0]                    # access element
+a["a"]                  # access named element
+a[""]                   # access Array of named elements
 [1, 10]                 # Inclusive range
 ]1, 10[                 # Exclusive range
 ```
