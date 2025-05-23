@@ -232,7 +232,7 @@ ops = {
     'READ'  : lambda x: eval(parser.parse(input(x.format(**env.vars) if isinstance(x, str) else x)), env),
     'LOAD'  : lambda x: load(x),
     'EVAL'  : lambda x: pyeval(x) or NONE,
-    'SIZE'  : lambda x: len(x) if hasattr(x, '__len__') else NONE,
+    'SIZE'  : lambda x: x.len() if hasattr(x, 'len') else len(x) if hasattr(x, '__len__') else NONE,
 }
 
 def load(path):
@@ -468,7 +468,10 @@ class Lambda():
 
     def __iter__(self):
         return iter([self.env, self.arg, self.fun, self.stk])
-        
+
+    def len(self):
+        return len(self.arg) if not self.stk else float('inf')
+
 def language(s):
     global reserved
     has_run = False
