@@ -79,7 +79,7 @@ def t_ID(t):
     return t
 
 t_NUM = r'((0|[1-9][0-9]*)\.([0-9]*[1-9]|0)|0b0|0b1[0|1]*|0x0|0x[1-9a-fA-F][0-9a-fA-F]*|0|[1-9][0-9]*)j?'
-t_STR = r'"[^"]*"'
+t_STR = r"'[^']*'"
 t_ASG = r'='
 t_USG = r'(\+\+|--)((?!' + t_NUM + '|' + t_ID.__doc__ + ')|(?=imag))' # edge cases: ['1++1', '1++a', 'a++imag']
 t_DIV = r'[|\/\\]'
@@ -132,14 +132,13 @@ rule_node('val', 'exp : NUM', 1)
 rule_node('val', 'exp : STR', 1)
 
 # operators
-for binop in ["'+'", "'-'", "'*'", 'DIV']:
+for binop in ["'+'", "'-'", "'*'", 'DIV', 'POW']:
     rule_op(binop)
-    rule_func('op', f'exp : ID {binop} exp', lambda p: ('op', p[2], ('id', p[1]), p[3]))
-    rule_func('asg', f'exp : ID {binop} ASG exp', lambda p: ('asg', p[3], p[1], ('op', p[2], ('id', p[1]), p[4])))
-for binop in ['MOD', 'POW', 'OR', 'XOR', 'AND']:
+    rule_func('asg', f'exp : exp {binop} ASG exp', lambda p: ('asg', p[3], p[1], ('op', p[2], p[1], p[4])))
+# this doesnt work for operator assign cz of the lambda
+for binop in ['MOD', 'OR', 'XOR', 'AND']:
     rule_op(binop, use_val=False)
-    rule_func('op', f'exp : ID {binop} exp', lambda p: ('op', binop, ('id', p[1]), p[3]))
-    rule_func('asg', f'exp : ID {binop} ASG exp', lambda p: ('asg', p[3], p[1], ('op', binop, ('id', p[1]), p[4])))
+    rule_func('asg', f'exp : exp {binop} ASG exp', lambda p, binop=binop: ('asg', p[3], p[1], ('op', binop, p[1], p[4])))
 
 for unpre in ["'+'", "'-'"]:
     rule_func('op', f'exp : {unpre} exp', lambda p: ('op', 'u'+p[1], p[2]))
@@ -153,10 +152,8 @@ rule_list('seq', 'exp', "';'", trailing_seperator='')
 rule_func('seq', "exp : '{' seq '}'", lambda p: ('seq', *p[2]))
 
 # assign, increment & decrement
-rule_node('asg', 'exp : ID ASG exp', 2, 1, 3)
-rule_node('asg', 'exp : ID USG', 2, 1)
-rule_func('asg', "exp : agt ASG exp", lambda p: ('a_asg', p[2], p[1], p[3]))
-rule_func('asg', "exp : agt USG", lambda p: ('a_asg', p[2], p[1]))
+rule_node('asg', 'exp : exp ASG exp', 2, 1, 3)
+rule_node('asg', 'exp : exp USG', 2, 1)
 
 # comperator lists
 # only work if compare operators all have same precedence (idky)
@@ -200,11 +197,9 @@ rule_func('for', "exp : FOR ID IN exp ':' exp %prec FOR", lambda p: ('for', p[2]
 rule_func('for', "exp : FOR NUM ID IN itr ':' exp %prec FOR", lambda p: ('for', p[3], p[5], p[7], ('val', p[2])))
 rule_func('while', "exp : WHILE exp ':' exp %prec WHILE", lambda p: ('while', p[2], p[4]))
 
-# print and echo
-for inbuilt in ['ECHO', 'READ', 'LOAD', 'EVAL', 'SIZE']:
-    rule_op(inbuilt, prec='SYS', fix='prefix', use_val=False)
-    # this maps everything to the last element of the array, cz the lambda expression doesnt get evaluated i guess
-    # rule_func('sys', f'exp : {SYS} arg %prec SYS', lambda p: ('op', tmp, *p[2]))
+# builtin functions
+for op in ['ECHO', 'READ', 'LOAD', 'EVAL', 'SIZE']:
+    rule_func('sys', f"exp : {op} '(' exp ')' %prec SYS", lambda p, op=op: ('op', op, p[3]))
 
 def p_error(p):
     raise SyntaxError(f'Syntax error in {p}')
@@ -273,10 +268,14 @@ def eval(exp, env):
         case ('id', x):
             return env[x]
         case ('asg', op, x, *exp):
+            if x[0] == 'a_get': return eval('a_asg', op, x, *exp)
+            if x[0] != 'id': raise TypeError(x)
+            x = x[1]
             match(op):
                 case '=':  env[x]  = eval(*exp, env)
                 case '++': env[x] += 1
                 case '--': env[x] -= 1
+            print(env)
             return env[x]
         case ('arr', *x):
             arr = []
@@ -287,10 +286,8 @@ def eval(exp, env):
                 else: arr.append(eval(xi, env))
             return Array(arr, dic)
         case ('a_get', a, i):
-            print(a,i)
             i = eval(i, env)
             a = eval(a, env)
-            print(a,i)
             return a[i]
         case ('a_asg', op, x, *exp):
             path = []
@@ -346,6 +343,7 @@ def eval(exp, env):
             env_f = env_f.fork()
             arg_f = arg_f.copy()
             arg = eval(arg, env)
+            # add named values to env_f and remove from arg_f
             env_f.vars |= arg.dic
             for a in arg.dic.keys():
                 arg_f.remove(a)
@@ -448,7 +446,9 @@ class Array(list):
 
     def __getitem__(self, name):
         if isinstance(name, str):
-            if name == '*': return Array(self.dic.values(), {})
+            if name == '': return Array([], self.dic)
+            if name == '*': return Array(list(self) + list(self.dic.values()), {})
+            if name == '_': return Array(list(self), {})
             return self.dic[name]
         return super().__getitem__(name)
 
@@ -458,6 +458,10 @@ class Array(list):
                 raise Exception("key can't be empty string")
             self.dic[name] = value
         else: super().__setitem__(name, value)
+
+    def __add__(self, other):
+        if not isinstance(other, Array): return NotImplemented
+        return Array(list(self) + other, self.dic | other.dic)
 
 class Lambda():
     def __init__(self, env, arg, fun, varg=None):

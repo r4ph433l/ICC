@@ -9,7 +9,7 @@
     };
     # nice unicode syntax #
     ∑ = (a) -> {
-        ? ‖ a:
+        ? ‖ (a):
         {
             x = 0;
             ∀ e ∈ a: x += e.
