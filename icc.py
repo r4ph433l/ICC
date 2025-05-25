@@ -66,7 +66,7 @@ literals = r'+-*(){};[],:'
 restoken = ['MOD', 'OR', 'XOR', 'AND', 'NOT', 'IF', 'IN', 'ELSE', 'FOR', 'WHILE', 'ECHO', 'READ', 'LOAD', 'EVAL', 'SIZE']
 engwords = {s.lower(): s for s in restoken}
 reserved = engwords.copy()
-tokens = ['NUM', 'STR', 'ID', 'STK', 'ASG', 'USG', 'DIV', 'POW', 'CMP', 'TO'] + restoken
+tokens = ['NUM', 'STR', 'ID', 'ASG', 'USG', 'DIV', 'POW', 'CMP', 'VRG', 'ITR', 'TO'] + restoken
 
 _t('MOD', '≡')
 _t('OR', '∨'); _t('XOR', '⊻'); _t('AND', '∧'); _t('NOT', '¬')
@@ -85,7 +85,8 @@ t_USG = r'(\+\+|--)((?!' + t_NUM + '|' + t_ID.__doc__ + ')|(?=imag))' # edge cas
 t_DIV = r'[|\/\\]'
 t_POW = r'\*\*'
 t_CMP = r'[!=<>]=|[<>]'
-t_STK = r'\$'
+_t('VRG', r'(?<=\S)\.\.\.')
+t_ITR = r'(?<=\S)\.\.|\.\.(?=\S)'
 t_TO  = r'->'
 
 t_ignore = ' \t'
@@ -110,17 +111,19 @@ from ply.yacc import yacc
 
 precedence = [
         ['left', 'ID'],
-        ['right', 'ASG', 'SYS', 'FOR', 'WHILE', 'TO'],
+        ['right', 'ASG', 'FOR', 'WHILE', 'TO'],
         ['right', 'IF'], ['right', 'ELSE'], ['left', 'ELIF'],
-        ['left', 'ARR'],['left', ','],
+        ['left', 'ARR'],
         ['left', 'OR'], ['left', 'XOR'], ['left', 'AND'],
         ['left', 'CLS'], ['left', 'CMP'],
+        ['left', 'ITR'],
         ['left', '+', '-'],
         ['left', '*', 'DIV', 'MOD'],
         ['right', 'POW'],
-        ['left', 'NOT', 'STK'],
+        ['right', 'SYS'],
+        ['left', 'NOT'],
         ['right', 'USG'],
-        ['left', '['],
+        ['left', '(', ')', '[', ']']
 ]
 
 # simples
@@ -160,22 +163,22 @@ rule_func('asg', "exp : agt USG", lambda p: ('a_asg', p[2], p[1]))
 rule_func('cmp', 'cmp : exp CMP exp', lambda p: [[p[2]], [p[1], p[3]]])
 rule_func('cmp', 'cmp : cmp CMP exp', lambda p: [p[1][0] + [p[2]], p[1][1] + [p[3]]])
 rule_func('cmp', 'exp : cmp %prec CLS', lambda p: ('cmp', *p[1]))
+rule_func('cmp', 'exp : exp IN exp %prec CMP', lambda p: ('in', p[1], p[3]))
 
 # arrays
-rule_func('arr', "arr : exp ',' exp", lambda p: [p[1], p[3]])
-rule_func('arr', "arr : arr ',' exp", lambda p: [*p[1], p[3]])
-rule_func('arr', "exp : arr %prec ARR", lambda p: ('arr', *p[1]))
-rule_func('arr', "exp : '(' ')'", lambda p: ('arr',))
-rule_func('arr', "exp : '(' exp ',' ')'", lambda p: ('arr', p[2]))
+rule_list('arr', 'exp', "','", prec='ARR', trailing_seperator='')
+rule_func('arr', "exp : '[' arr ']'", lambda p: ('arr', *p[2]))
+rule_func('arr', "exp : '[' ']'", lambda p: ('arr',))
 rule_func('arr', "agt : exp '[' exp ']'", lambda p: ('a_get', p[1], p[3]))
 rule_func('arr', 'exp : agt', lambda p: p[1])
 
 # lambda, functions and calls
-rule_func('fun', 'exp : exp TO exp', lambda p: ('lambda', p[1], p[3], False))
-rule_func('fun', "exp : exp STK TO exp", lambda p: ('lambda', p[1], p[4], True))
-rule_func('fun', "exp : exp '(' exp ')'", lambda p: ('call', p[1], p[3]))
-rule_func('fun', "exp : exp '(' ')'", lambda p: ('call', p[1], ('arr',)))
-rule_func('stk', "exp : STK exp", lambda p: ('stk', p[2]))
+rule_func('fun', "arg : '(' arr ')'", lambda p: p[2])
+rule_func('fun', "arg : '(' exp ')'", lambda p: [p[2]])
+rule_func('fun', "arg : '(' ')'", lambda p: [])
+rule_func('fun', "exp : arg TO exp", lambda p: ('lambda', p[1], p[3]))
+rule_func('fun', "exp : '(' arr VRG ')' TO exp", lambda p: ('lambda', p[2], p[6], True))
+rule_func('fun', "exp : exp arg", lambda p: ('call', p[1], ('arr', *p[2])))
 
 # control structures
 rule_func('ctl', "ifc : IF exp ':' exp %prec IF", lambda p: ('if', p[2], p[4]))
@@ -185,21 +188,23 @@ rule_func('ctl', "exp : ifc els %prec ELSE", lambda p: p[1] + ((p[2]),))
 rule_func('ctl', "exp : ifc %prec IF", lambda p: p[1] + ((None),))
 
 # iterator
-rule_func('it', "it : '[' exp ',' exp ']'", lambda p: ('range', p[2], p[4], (True,  True )))
-rule_func('it', "it : ']' exp ',' exp ']'", lambda p: ('range', p[2], p[4], (False, True )))
-rule_func('it', "it : '[' exp ',' exp '['", lambda p: ('range', p[2], p[4], (True,  False)))
-rule_func('it', "it : ']' exp ',' exp '['", lambda p: ('range', p[2], p[4], (False, False)))
-rule_func('it', "exp : it", lambda p: p[1])
-rule_func('it', 'exp : exp IN exp %prec CMP', lambda p: ('in', p[1], p[3]))
+rule_func('itr', 'itr : exp ITR exp', lambda p: ('iterator', p[1], p[3], False))
+rule_func('itr', 'itr : exp ITR ASG exp', lambda p: ('iterator', p[1], p[4], True))
+rule_func('itr', 'itr : ITR exp', lambda p: ('iterator', None, p[2], False))
+rule_func('itr', 'itr : ITR ASG exp', lambda p: ('iterator', None, p[3], True))
+rule_func('itr', 'itr : exp ITR', lambda p: ('iterator', p[1], None, False))
+rule_func('itr', 'exp : itr', lambda p: p[1])
 
 # loops
 rule_func('for', "exp : FOR ID IN exp ':' exp %prec FOR", lambda p: ('for', p[2], p[4] ,p[6]))
-rule_func('for', "exp : FOR NUM ID IN it ':' exp %prec FOR", lambda p: ('for', p[3], p[5], p[7], ('val', p[2])))
+rule_func('for', "exp : FOR NUM ID IN itr ':' exp %prec FOR", lambda p: ('for', p[3], p[5], p[7], ('val', p[2])))
 rule_func('while', "exp : WHILE exp ':' exp %prec WHILE", lambda p: ('while', p[2], p[4]))
 
 # print and echo
-for sys in ['ECHO', 'READ', 'LOAD', 'EVAL', 'SIZE']:
-    rule_op(sys, fix='prefix', prec='SYS', use_val=False)
+for inbuilt in ['ECHO', 'READ', 'LOAD', 'EVAL', 'SIZE']:
+    rule_op(inbuilt, prec='SYS', fix='prefix', use_val=False)
+    # this maps everything to the last element of the array, cz the lambda expression doesnt get evaluated i guess
+    # rule_func('sys', f'exp : {SYS} arg %prec SYS', lambda p: ('op', tmp, *p[2]))
 
 def p_error(p):
     raise SyntaxError(f'Syntax error in {p}')
@@ -282,8 +287,10 @@ def eval(exp, env):
                 else: arr.append(eval(xi, env))
             return Array(arr, dic)
         case ('a_get', a, i):
+            print(a,i)
             i = eval(i, env)
             a = eval(a, env)
+            print(a,i)
             return a[i]
         case ('a_asg', op, x, *exp):
             path = []
@@ -310,10 +317,11 @@ def eval(exp, env):
             for con, exp in eif:
                 if eval(con, env): return eval(exp, env)
             return eval(alt, env) if alt else NONE
-        case ('range', lo, up, inc):
-            return Range(eval(lo, env), eval(up, env), inc)
+        case ('iterator', start, end, inclusive):
+            return Iterator(eval(start, env) if start != None else 0, (eval(end, env) if end != None else None), inclusive=inclusive)
         case ('in', exp, it):
-            return int(eval(exp, env) in eval(it, env))
+            exp = eval(exp, env)
+            return eval(it, env).__contains__(exp)
         case ('for', i, it, exp, *n):
             it = eval(it, env)
             if not hasattr(it, '__iter__'): raise Exception(f'{it} is not iterable')
@@ -328,42 +336,32 @@ def eval(exp, env):
             while eval(cond, env):
                 ret = eval(exp, env)
             return ret
-        case ('lambda', arg, fun, stk):
-            t, *arg = arg
-            if t == 'arr':
-                for i in range(len(arg)):
-                    if arg[i][0] != 'id': raise Exception(f'arg {arg[i]} is illegal')
-                    arg[i] = arg[i][1]
-            elif t != 'id': raise Exception(f'arg {arg} is illegal')
-            return Lambda(env, arg, fun, stk)
+        case ('lambda', arg, fun, *varg):
+            for i in range(len(arg)):
+                if arg[i][0] != 'id': raise Exception(f'invalid argument {arg[i]}')
+                arg[i] = arg[i][1]
+            return Lambda(env, arg, fun, varg)
         case ('call', fun, arg):
-            env_f, arg_f, fun, stk = eval(fun, env)
+            env_f, arg_f, fun, varg = eval(fun, env)
             env_f = env_f.fork()
             arg_f = arg_f.copy()
             arg = eval(arg, env)
-            # arg can be array or exp
-            if not isinstance(arg, Array):
-                arg = [arg]
-            else:
-                env_f.vars |= arg.dic
-                for a in arg.dic.keys():
-                    arg_f.remove(a)
+            env_f.vars |= arg.dic
+            for a in arg.dic.keys():
+                arg_f.remove(a)
             # match given args to lambda args
             while arg_f and arg:
                 env_f[arg_f.pop(0)] = arg.pop(0)
             # undersupply
             if arg_f:
-                return Lambda(env_f, arg_f, fun, stk)
+                return Lambda(env_f, arg_f, fun, varg)
             # oversupply
-            if arg and not stk:
+            if arg and not varg:
                 raise Exception(f'too many arguments')
+            env_f[varg] = Array([],{})
             for x in arg:
-                env_f.stk.append(x)
+                env_f[varg].append(x)
             return eval(fun, env_f)
-        case ('stk', i):
-            i = eval(i, env)
-            if i == 0: return len(env.stk)
-            return env.stk[i-1]
         case _: raise Exception(f'exception in {exp}')
 
 class Environment:
@@ -400,33 +398,40 @@ class Environment:
             self.parent[name] = value
         else: self.vars[name] = value
 
-class Range():
-    def __init__(self, low, upper, inclusive=(False, False), step=1):
-        if upper < low: step *= -1
-        self.bounds = low, upper
-        self.inclusive = inclusive
+class Iterator():
+    def __init__(self, start, end, step=1, inclusive=False):
+        if end != None and start > end: step *= -1
+        self.start = start
+        self.end = end
         self.step = step
+        self.inclusive = inclusive
 
     def __repr__(self):
-        lo, up = self.bounds
-        match(self.inclusive):
-            case (True,  True ): return f'[{lo},{up}]'
-            case (False, True ): return f']{lo},{up}]'
-            case (True,  False): return f'[{lo},{up}['
-            case (False, False): return f']{lo},{up}['
+        match self.start, self.end:
+            case 0, end:   return f"..{'=' if self.inclusive else ''}{end}"
+            case start, None: return f'{start}..'
+            case start, end:  return f"{start}..{'=' if self.inclusive else ''}{end}"
 
     def __iter__(self):
-        lo, up = self.bounds
-        if not self.inclusive[0]: lo += self.step
-        if self.inclusive[1]: up += self.step
-        return iter(range(lo, up, self.step))
+        return self
 
-    def __contains__(self, x):
-        (lo, up), inc = self.bounds, self.inclusive
-        if self.step < 0:
-            lo, up = up, lo
-            inc = [inc[1], inc[0]]
-        return lo <= x <= up and (lo < x or inc[0]) and (x < up or inc[1])
+    def __next__(self):
+        start, end = (self.start, self.end) if self.step > 0 else (self.end, self.start)
+        if end == None: pass
+        elif start < end: pass
+        elif self.inclusive and start == end: pass
+        else: raise StopIteration
+        ret = self.start
+        self.start += self.step
+        return ret
+
+    def __contains__(self, val):
+        if not isinstance(val, int): return 0
+        if self.step > 0 and self.start <= val <= self.end:
+            if (val+self.start) % self.step == 0: return 1
+        elif self.step < 0 and self.end <= val <= self.start:
+            if (val+self.end) % self.step == 0: return 1
+        return 0
 
 class Array(list):
     def __init__(self, arr, dic):
@@ -438,13 +443,12 @@ class Array(list):
         if len(self.dic) > 0:
             if len(s) > 0:
                 s += ', '
-            s += repr(self.dic)[1:-1]
-        return '(' + s + ')'
+            s += repr(self.dic).replace("'", '').replace(': ', '=')[1:-1]
+        return '[' + s + ']'
 
     def __getitem__(self, name):
         if isinstance(name, str):
-            if name == '':
-                return Array(self.dic.values(), {})
+            if name == '*': return Array(self.dic.values(), {})
             return self.dic[name]
         return super().__getitem__(name)
 
@@ -456,23 +460,23 @@ class Array(list):
         else: super().__setitem__(name, value)
 
 class Lambda():
-    def __init__(self, env, arg, fun, stk=False):
+    def __init__(self, env, arg, fun, varg=None):
+        self.varg = arg.pop() if varg else None
         self.env = env
         self.arg = arg
         self.fun = fun
-        self.stk = stk
 
     def __repr__(self):
-        head = '(' + ','.join(self.arg)  + ')' + ('$' if self.stk else '') + ' -> '
+        head = '(' + ','.join(self.arg + ([self.varg] if self.varg else [])) + (f'...' if self.varg else '') + ') -> '
         if not verbose:
             return head + '{...}'
         return repr(self.env) + '\n' + head + repr(self.fun)
 
     def __iter__(self):
-        return iter([self.env, self.arg, self.fun, self.stk])
+        return iter([self.env, self.arg, self.fun, self.varg])
 
     def len(self):
-        return len(self.arg) if not self.stk else float('inf')
+        return len(self.arg) if not self.varg else float('inf')
 
 def language(s):
     global reserved
@@ -534,7 +538,7 @@ if __name__ == '__main__':
 
     while True:
         try:
-            src = input('\x1b[0;32m' + '>>> ' + '\x1b[0m')
+            src = input('\x1b\x1b[0;32m' + '>>> ' + '\x1b[0m')
             if src == '': continue
             if src.strip() == 'help':
                 print('\n'.join([f'{value:5} = {key}' for key, value in reserved.items() if key not in engwords.keys()]))
@@ -542,7 +546,7 @@ if __name__ == '__main__':
                 continue
             wait = src[-1] == ':'
             while src.count('#') % 2 != 0 or src.count('{') != src.count('}') or wait:
-                s = input('\x1b[0;32m' + '... ' + '\x1b[0m')
+                s = input('\x1b\x1b[0;32m' + '... ' + '\x1b[0m')
                 if s == ':': wait = True
                 elif s == '': wait = False
                 src += '\n' + s

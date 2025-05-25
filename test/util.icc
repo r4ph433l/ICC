@@ -1,33 +1,35 @@
 {
     # sum with usage of the function stack #
-    sum = ()$ -> {
-        if $0 > 0: {
+    sum = (a...) -> {
+        if size(a):
+        {
             x = 0;
-            for i in [1,$0]: x += $i.
-         }.
+            for e in a: x += e.
+        }
     };
     # nice unicode syntax #
-    ∑ = ()$ -> {
-        ? $0 > 0: {
-        x = 0;
-            ∀ i ∈ [1,$0]: x += $i.
-        }.
+    ∑ = (a) -> {
+        ? ‖ a:
+        {
+            x = 0;
+            ∀ e ∈ a: x += e.
+        }
     };
     # recursive multiplication #
-    mul = a,b ->
+    mul = (a,b) ->
         if a > 0:
             b += mul(a--, b)
-        else a.;
+        else: a;
     # recursive factorial #
-    fact = n ->
+    fact = (n) ->
         if n <= 1:
             1
-        else fact(n--) * n.;
+        else: fact(n--) * n.;
     # map higher order #
-    map = (f)$ -> {
+    map = (f, x...) -> {
         arr = ();
-        for i in ]0,$0]:
-                arr += (f($i),).;
+        for xi in x:
+                arr += [f(xi)];
         arr
     };
     # or even better #
